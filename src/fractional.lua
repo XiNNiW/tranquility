@@ -5,6 +5,9 @@ require('math')
 --TODO
 -- from_float
 -- from_decimal
+-- eq
+-- lt
+-- gt
 -- mod
 -- pow
 -- rpow
@@ -191,4 +194,63 @@ function Fraction:__mul (f2)
     end
 
     return Fraction:new(na*nb,da*db,false)
+end
+
+function Fraction:__pow (f2)
+    -- """a ** b
+    -- If b is not an integer, the result will be a float or complex
+    -- since roots are generally irrational. If b is an integer, the
+    -- result will be rational.
+    -- """
+    -- if isinstance(b, numbers.Rational):
+    --     if b.denominator == 1:
+    --         power = b.numerator
+    --         if power >= 0:
+    --             return Fraction(a._numerator ** power,
+    --                             a._denominator ** power,
+    --                             _normalize=False)
+    --         elif a._numerator >= 0:
+    --             return Fraction(a._denominator ** -power,
+    --                             a._numerator ** -power,
+    --                             _normalize=False)
+    --         else:
+    --             return Fraction((-a._denominator) ** -power,
+    --                             (-a._numerator) ** -power,
+    --                             _normalize=False)
+    --     else:
+    --         # A fractional power will generally produce an
+    --         # irrational number.
+    --         return float(a) ** float(b)
+    -- else:
+    --     return float(a) ** b
+    if f2:denominator() == 1 then
+        local power = f2:numerator()
+        if power >= 0 then
+            return Fraction:new(self:numerator()^power, self:denominator()^power, false)
+        elseif self:numerator() >= 0 then
+            return Fraction:new(self:denominator()^-power, self:numerator()^-power, false)
+        else 
+            return Fraction:new((-self:numerator())^-power, (-self:denominator())^-power, false)
+        end
+    else
+        return (self:numerator()/self:denominator())^(f2:numerator()/f2:denominator())
+    end
+end
+
+function Fraction:__mod (f2)
+    -- """a % b"""
+    -- da, db = a.denominator, b.denominator
+    -- return Fraction((a.numerator * db) % (b.numerator * da), da * db)
+    local da = self:denominator()
+    local db = f2:denominator()
+
+    return Fraction:new((self:numerator() * db)%(f2:numerator()*da), da*db)
+end
+
+function Fraction:__unm ()
+    return Fraction:new(-self:numerator(), self:denominator(), false)
+end
+
+function Fraction:floor ()
+    return self:numerator()//self:denominator()
 end
