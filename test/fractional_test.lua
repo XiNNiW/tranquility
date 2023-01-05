@@ -11,7 +11,9 @@ function TestFractional__create()
     lu.assertEquals(f:denominator(), 2)
 end
 
-function TestFractional__create()
+function CreateFraction(n,d) return Fraction:new(n,d) end
+
+function TestFractional__new()
     local f = Fraction:new()
     lu.assertEquals(f:numerator(), 0)
     lu.assertEquals(f:denominator(), 1)
@@ -30,7 +32,7 @@ function TestFractional__create()
     f = Fraction:new(-4,-8)
     lu.assertEquals(f:numerator(), 1)
     lu.assertEquals(f:denominator(), 2)
-
+    lu.assertError(CreateFraction, 1, 0)
 end
 
 function TestFractional__add()

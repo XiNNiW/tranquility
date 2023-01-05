@@ -39,6 +39,7 @@ function Fraction:new (
 )
     local n = numerator or 0
     local d = denominator or 1
+    if denominator == 0 then error("Fractional: divide by zero") end
     local normalize = shouldNormalize or true
     n = math.floor(n)
     d = math.floor(d)

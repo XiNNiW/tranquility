@@ -1,3 +1,3 @@
 #!/bin/bash
 
-lua ./test/lunacy_test.lua
+lua ./test/all_tests.lua
