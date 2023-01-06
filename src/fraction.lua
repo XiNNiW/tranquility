@@ -1,4 +1,5 @@
 require('math')
+-- require('src/time_span')
 
 -- this is a quick and dirty port of python's Fraction library pulling in only the things i need to get a first version working
 -- this should probably all be C calls instead
@@ -230,7 +231,7 @@ function Fraction:__pow (f2)
             return Fraction:new(self:numerator()^power, self:denominator()^power, false)
         elseif self:numerator() >= 0 then
             return Fraction:new(self:denominator()^-power, self:numerator()^-power, false)
-        else 
+        else
             return Fraction:new((-self:numerator())^-power, (-self:denominator())^-power, false)
         end
     else
@@ -250,6 +251,19 @@ end
 
 function Fraction:__unm ()
     return Fraction:new(-self:numerator(), self:denominator(), false)
+end
+
+function Fraction:__eq (rhs)
+    return (self:numerator()/self:denominator())==(rhs:numerator()/rhs:denominator())
+end
+
+function Fraction:__lt (rhs)
+    return (self:numerator()/self:denominator())<(rhs:numerator()/rhs:denominator())
+end
+
+
+function Fraction:__lte (rhs)
+    return (self:numerator()/self:denominator())<=(rhs.numerator()/rhs.denominator())
 end
 
 function Fraction:floor ()

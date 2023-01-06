@@ -1,5 +1,6 @@
 require("math")
-require('src/fractional')
+require("table")
+require('src/fraction')
 
 -- """Returns the start of the cycle."""
 -- Fraction.sam = lambda self: Fraction(math.floor(self))
@@ -20,6 +21,10 @@ function TimeSpan:nextSam(frac)
     return Fraction:new(frac:floor()+1)
 end
 
+function TimeSpan:wholeCycle(frac)
+    return TimeSpan:new(TimeSpan:sam(frac), TimeSpan:nextSam(frac))
+end
+
 function TimeSpan:create (o)
     o = o or {}
     setmetatable(o, self)
@@ -27,28 +32,38 @@ function TimeSpan:create (o)
     return o
 end
 
-function TimeSpan:wholeCycle()
-    return TimeSpan:new(TimeSpan:sam(self:beginTime()), TimeSpan:nextSam(self:endTime()))
+function TimeSpan:new(_begin, _end)
+    return TimeSpan:create{_begin=_begin, _end=_end}
 end
 
-function TimeSpan:beginTime ()
+function TimeSpan:beginTime()
     return self._begin
 end
 
-function TimeSpan:endTime ()
+function TimeSpan:endTime()
     return self._end
 end
 
---function TimeSpan.span_cycles()
---    local spans = {}
---    local _begin = self._begin
---    local _end = self._end
---    local end_sam = _end.sam()
---
---    while _end > _begin do
---        if begin.sam() == end_sam then
---            spans.
---        end
---    end
---    return spans
---end
+function TimeSpan:spanCycles()
+    local spans = {}
+    local _begin = self._begin
+    local _end = self._end
+    local end_sam = TimeSpan:sam(_end)
+
+    if _begin == _end then
+        return {TimeSpan:new(_begin, _end)}
+    end
+
+    while _end > _begin do
+        if TimeSpan:sam(_begin) == end_sam then
+            table.insert(spans, TimeSpan:new(_begin, self._end))
+            break
+        end
+
+        local next_begin = TimeSpan:nextSam(_begin)
+        table.insert(spans, TimeSpan:new(_begin, next_begin))
+
+        _begin = next_begin
+    end
+    return spans
+end

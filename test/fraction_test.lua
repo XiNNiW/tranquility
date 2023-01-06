@@ -1,8 +1,8 @@
 ---@diagnostic disable: different-requires
 local lu = require('test/luaunit/luaunit')
-require('src/fractional')
+require('src/fraction')
 
-function TestFractional__create()
+function TestFraction__create()
     local f = Fraction:create()
     lu.assertEquals(f:numerator(), 0)
     lu.assertEquals(f:denominator(), 1)
@@ -13,7 +13,7 @@ end
 
 function CreateFraction(n,d) return Fraction:new(n,d) end
 
-function TestFractional__new()
+function TestFraction__new()
     local f = Fraction:new()
     lu.assertEquals(f:numerator(), 0)
     lu.assertEquals(f:denominator(), 1)
@@ -32,10 +32,21 @@ function TestFractional__new()
     f = Fraction:new(-4,-8)
     lu.assertEquals(f:numerator(), 1)
     lu.assertEquals(f:denominator(), 2)
+   -- Does Fraction need to reduce decimal numbers to closest approximation?
+    --f = Fraction:new(1.5, 7.6)
+   -- lu.assertEquals(f:numerator(), 1.5)
+   -- lu.assertEquals(f:denominator(), 7.6)
     lu.assertError(CreateFraction, 1, 0)
 end
 
-function TestFractional__add()
+-- Does Fraction need to infer fraction from string representation?
+--function TestFractional__new__fromString()
+--    local f = Fraction:new("1/2")
+--    lu.assertEquals(f:numerator(), 1)
+--    lu.assertEquals(f:denominator(), 2)
+--end
+
+function TestFraction__add()
     local f1 = Fraction:new(1,2)
     local f2 = Fraction:new(1,2)
     lu.assertEquals(f1+f2, Fraction:new(1))
@@ -49,7 +60,7 @@ function TestFractional__add()
     lu.assertEquals(f1+f2, Fraction:new(1,6))
 end
 
-function TestFractional__sub()
+function TestFraction__sub()
     local f1 = Fraction:new(1,2)
     local f2 = Fraction:new(1,2)
     lu.assertEquals(f1-f2, Fraction:new(0))
@@ -63,7 +74,7 @@ function TestFractional__sub()
     lu.assertEquals(f1-f2, Fraction:new(5,6))
 end
 
-function TestFractional__mult()
+function TestFraction__mult()
     local f1 = Fraction:new(1,2)
     local f2 = Fraction:new(1,2)
     lu.assertEquals(f1*f2, Fraction:new(1,4))
@@ -75,7 +86,7 @@ function TestFractional__mult()
     lu.assertEquals(f1*f2, Fraction:new(-1,6))
 end
 
-function TestFractional__div()
+function TestFraction__div()
     local f1 = Fraction:new(1,2)
     local f2 = Fraction:new(1,2)
     lu.assertEquals(f1/f2, Fraction:new(1))
@@ -88,7 +99,7 @@ function TestFractional__div()
 end
 
 
-function TestFractional__mod()
+function TestFraction__mod()
     local f1 = Fraction:new(1,2)
     local f2 = Fraction:new(2,3)
     lu.assertEquals(f1%f2, Fraction:new(1,2))
@@ -96,24 +107,23 @@ function TestFractional__mod()
     f2 = Fraction:new(2,3)
     -- 9/12 % 8/12 = 1/12
     lu.assertEquals(f1%f2, Fraction:new(1,12))
-    
 end
 
-function TestFractional__pow()
+function TestFraction__pow()
     local f1 = Fraction:new(1,4)
     local f2 = Fraction:new(1,2)
     lu.assertEquals(f1^f2, 0.5)
-    local f1 = Fraction:new(1,4)
-    local f2 = Fraction:new(2,1)
+    f1 = Fraction:new(1,4)
+    f2 = Fraction:new(2,1)
     lu.assertEquals(f1^f2, Fraction:new(1,16))
 end
 
-function TestFractional__neg()
+function TestFraction__neg()
     local f1 = Fraction:new(1,4)
     lu.assertEquals(-f1, Fraction:new(-1,4))
 end
 
-function TestFractional__floor()
+function TestFraction__floor()
     local f1 = Fraction:new(1,4)
     lu.assertEquals(f1:floor(), 0)
     f1 = Fraction:new(5,4)
@@ -122,5 +132,45 @@ function TestFractional__floor()
     lu.assertEquals(f1:floor(), 2)
 end
 
+function TestFraction__gt()
+    lu.assertTrue(Fraction:new(3,4) > Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(5,4) > Fraction:new(1,1))
+    lu.assertFalse(Fraction:new(1,3)> Fraction:new(1,2))
+    lu.assertFalse(Fraction:new(5,4)> Fraction:new(7,4))
+end
+
+function TestFraction__lt()
+    lu.assertTrue(Fraction:new(1,4) < Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(1,4) < Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(5,4) < Fraction:new(7,3))
+    lu.assertFalse(Fraction:new(2,3)< Fraction:new(1,2))
+    lu.assertFalse(Fraction:new(9,1)< Fraction:new(7,4))
+end
+
+function TestFraction__gte()
+    lu.assertTrue(Fraction:new(3,4) >= Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(1,3) >= Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(-1,3) >= Fraction:new(-7,3))
+    lu.assertTrue(Fraction:new(5,4) >= Fraction:new(5,4))
+    lu.assertFalse(Fraction:new(1,3)>= Fraction:new(1,2))
+    lu.assertFalse(Fraction:new(5,4)>= Fraction:new(7,4))
+end
+
+function TestFraction__lte()
+    lu.assertTrue(Fraction:new(1,4) <= Fraction:new(1,3))
+    lu.assertTrue(Fraction:new(1,4) <= Fraction:new(1,4))
+    lu.assertTrue(Fraction:new(5,4) <= Fraction:new(7,3))
+    lu.assertTrue(Fraction:new(-5,4) <= Fraction:new(7,3))
+    lu.assertFalse(Fraction:new(2,3)<= Fraction:new(1,2))
+    lu.assertFalse(Fraction:new(9,1)<= Fraction:new(7,4))
+end
+
+function TestFraction__eq()
+    lu.assertTrue(Fraction:new(1,4) == Fraction:new(1,4))
+    lu.assertTrue(Fraction:new(5,4) == Fraction:new(10,8))
+    lu.assertTrue(Fraction:new(-2,3)== Fraction:new(8,-12))
+    lu.assertTrue(Fraction:new(-1,3)== Fraction:new(-3,9))
+    lu.assertFalse(Fraction:new(254,255) == Fraction:new(255,256))
+end
 
 --os.exit( lu.LuaUnit.run() )
