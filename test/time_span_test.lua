@@ -64,10 +64,20 @@ end
 function TestTimeSpan__duration()
     local ts = TimeSpan:new(Fraction:new(3, 4), Fraction:new(7, 2))
     lu.assertEquals(ts:duration(), Fraction:new(11, 4))
+    ts = TimeSpan:new(Fraction:new(6,7),Fraction:new(10,11))
+    lu.assertEquals(ts:duration(), Fraction:new(4,77))
 end
 
 function TestTimeSpan__cycleArc()
     local ts = TimeSpan:new(Fraction:new(5,4), Fraction:new(11,4))
     lu.assertEquals(ts:cycleArc(), TimeSpan:new(Fraction:new(1,4), Fraction:new(7, 4)))
 end
+
+function TestTimeSpan__midpoint()
+    local ts = TimeSpan:new(Fraction:new(0,1), Fraction:new(1,1))
+    lu.assertEquals(ts:midpoint(), Fraction:new(1,2))
+    ts = TimeSpan:new(Fraction:new(7,11), Fraction:new(5,4))
+    lu.assertEquals(ts:midpoint(), Fraction:new(83,88))
+end
+
 --os.exit( lu.LuaUnit.run() )

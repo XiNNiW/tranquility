@@ -76,8 +76,13 @@ function TimeSpan:duration()
     return self:endTime() - self:beginTime()
 end
 
+function TimeSpan:midpoint()
+    return self:beginTime() + (self:duration()/Fraction:new(2,1))
+end
+
 function TimeSpan:cycleArc()
     local b = TimeSpan:cyclePos(self:beginTime())
     local e = b + self:duration()
     return TimeSpan:new(b,e)
 end
+
