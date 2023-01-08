@@ -11,7 +11,7 @@ require('src/fraction')
 -- """Returns a TimeSpan representing the begin and end of the Time value's cycle"""
 -- Fraction.whole_cycle = lambda self: TimeSpan(self.sam(), self.next_sam())
 
-TimeSpan = {_begin=Fraction:new(1,1),_end=Fraction:new(1,1)}
+TimeSpan = {_begin=Fraction:new(1,1), _end=Fraction:new(1,1)}
 
 function TimeSpan:sam(frac)
     return Fraction:new(frac:floor())
@@ -23,6 +23,10 @@ end
 
 function TimeSpan:wholeCycle(frac)
     return TimeSpan:new(TimeSpan:sam(frac), TimeSpan:nextSam(frac))
+end
+
+function TimeSpan:cyclePos(frac)
+    return frac - TimeSpan:sam(frac)
 end
 
 function TimeSpan:create (o)
@@ -66,4 +70,14 @@ function TimeSpan:spanCycles()
         _begin = next_begin
     end
     return spans
+end
+
+function TimeSpan:duration()
+    return self:endTime() - self:beginTime()
+end
+
+function TimeSpan:cycleArc()
+    local b = TimeSpan:cyclePos(self:beginTime())
+    local e = b + self:duration()
+    return TimeSpan:new(b,e)
 end

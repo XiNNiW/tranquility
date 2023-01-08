@@ -2,7 +2,7 @@
 local lu = require('test/luaunit/luaunit')
 require('src/time_span')
 
-function TestTimeSpan_sam()
+function TestTimeSpan__sam()
     local f = Fraction:new(3, 4)
     local sam = TimeSpan:sam(f)
     lu.assertEquals(sam, Fraction:new(0, 1))
@@ -11,7 +11,7 @@ function TestTimeSpan_sam()
     lu.assertEquals(sam, Fraction:new(1, 1))
 end
 
-function TestTimeSpan_nextSam()
+function TestTimeSpan__nextSam()
     local f = Fraction:new(3, 4)
     local sam = TimeSpan:nextSam(f)
     lu.assertEquals(sam, Fraction:new(1, 1))
@@ -25,6 +25,11 @@ function TestFractional__wholeCycle()
     lu.assertEquals(TimeSpan:new(Fraction:new(0, 1), Fraction:new(1, 1)), TimeSpan:wholeCycle(f1))
     f1 = Fraction:new(3, 2)
     lu.assertEquals(TimeSpan:new(Fraction:new(1, 1), Fraction:new(2, 1)), TimeSpan:wholeCycle(f1))
+end
+
+function TestFraction__cyclePos()
+    local f1 = Fraction:new(7, 2)
+    lu.assertEquals(Fraction:new(1,2), TimeSpan:cyclePos(f1))
 end
 
 function TestTimeSpan__create()
@@ -56,4 +61,13 @@ function TestTimeSpan__spanCycles()
     lu.assertEquals(spans[4]:endTime()  , Fraction:new(7, 2))
 end
 
+function TestTimeSpan__duration()
+    local ts = TimeSpan:new(Fraction:new(3, 4), Fraction:new(7, 2))
+    lu.assertEquals(ts:duration(), Fraction:new(11, 4))
+end
+
+function TestTimeSpan__cycleArc()
+    local ts = TimeSpan:new(Fraction:new(5,4), Fraction:new(11,4))
+    lu.assertEquals(ts:cycleArc(), TimeSpan:new(Fraction:new(1,4), Fraction:new(7, 4)))
+end
 --os.exit( lu.LuaUnit.run() )
