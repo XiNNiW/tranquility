@@ -97,3 +97,7 @@ end
 function TimeSpan:withTime(func)
     return TimeSpan:new(func(self:beginTime()), func(self:endTime()))
 end
+
+function TimeSpan:withEnd(func)
+    return TimeSpan:new(self:beginTime(), func(self:endTime()))
+end
