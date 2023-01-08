@@ -84,5 +84,9 @@ function TestTimeSpan__equals()
     local ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
     local ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
     lu.assertEquals(ts1,ts2)
+    ts1 = TimeSpan:new(Fraction:new(4,8), Fraction:new(5,4))
+    ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(10,8))
+    lu.assertEquals(ts1,ts2)
+
 end
 --os.exit( lu.LuaUnit.run() )

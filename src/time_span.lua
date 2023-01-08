@@ -86,3 +86,7 @@ function TimeSpan:cycleArc()
     return TimeSpan:new(b,e)
 end
 
+function TimeSpan:__eq(rhs)
+    return (self:beginTime()==rhs:beginTime()) & (self:endTime()==rhs:endTime())
+end
+
