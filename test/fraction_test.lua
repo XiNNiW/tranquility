@@ -173,4 +173,7 @@ function TestFraction__eq()
     lu.assertFalse(Fraction:new(254,255) == Fraction:new(255,256))
 end
 
+function TestFraction__show()
+    lu.assertEquals(Fraction:new(1,2):show(), "1/2")
+end
 --os.exit( lu.LuaUnit.run() )

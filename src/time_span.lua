@@ -90,3 +90,6 @@ function TimeSpan:__eq(rhs)
     return (self:beginTime()==rhs:beginTime()) & (self:endTime()==rhs:endTime())
 end
 
+function TimeSpan:show()
+    return string.format('%s → %s', self:beginTime():show(), self:endTime():show())
+end

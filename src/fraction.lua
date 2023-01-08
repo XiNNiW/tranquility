@@ -269,3 +269,7 @@ end
 function Fraction:floor ()
     return self:numerator()//self:denominator()
 end
+
+function Fraction:show()
+    return string.format('%d/%d',self:numerator(),self:denominator())
+end

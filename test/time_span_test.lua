@@ -89,4 +89,9 @@ function TestTimeSpan__equals()
     lu.assertEquals(ts1,ts2)
 
 end
+
+function TestTimeSpan__show()
+    local ts = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    lu.assertEquals(ts:show(), "1/2 → 5/4")
+end
 --os.exit( lu.LuaUnit.run() )
