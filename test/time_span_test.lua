@@ -80,4 +80,9 @@ function TestTimeSpan__midpoint()
     lu.assertEquals(ts:midpoint(), Fraction:new(83,88))
 end
 
+function TestTimeSpan__equals()
+    local ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    local ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    lu.assertEquals(ts1,ts2)
+end
 --os.exit( lu.LuaUnit.run() )
