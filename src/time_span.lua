@@ -93,3 +93,7 @@ end
 function TimeSpan:show()
     return string.format('%s → %s', self:beginTime():show(), self:endTime():show())
 end
+
+function TimeSpan:withTime(func)
+    return TimeSpan:new(func(self:beginTime()), func(self:endTime()))
+end
