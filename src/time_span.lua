@@ -117,3 +117,11 @@ function TimeSpan:intersection(other)
     end
     return TimeSpan:new(startOfIntersection, endOfIntersection)
 end
+
+function TimeSpan:intersection_e(other)
+    local result = self:intersection(other)
+    if result == nil then
+        error("TimeSpan: TimeSpans do not intersect")
+    end
+    return result
+end

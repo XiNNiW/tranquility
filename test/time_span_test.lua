@@ -127,4 +127,20 @@ function TestTimeSpan__intersection()
     ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4))
     lu.assertNil(ts1:intersection(ts2))
 end
+
+function TestTimeSpan__intersection_e()
+    local ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    local ts2 = TimeSpan:new(Fraction:new(2,3), Fraction:new(2,2))
+    local expected = TimeSpan:new(Fraction:new(2,3),Fraction:new(2,2))
+    lu.assertEquals(ts1:intersection_e(ts2), expected)
+    lu.assertEquals(ts2:intersection_e(ts1), expected)
+    ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    ts2 = TimeSpan:new(Fraction:new(5,4), Fraction:new(7,4))
+    lu.assertError(function(t) ts1:intersection_e(t) end,ts2)
+    lu.assertError(function(t) ts2:intersection_e(t) end,ts1)
+    ts1 = TimeSpan:new(Fraction:new(5,4), Fraction:new(6,4))
+    ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4))
+    lu.assertError(function(t) ts1:intersection_e(t) end,ts2)
+
+end
 --os.exit( lu.LuaUnit.run() )
