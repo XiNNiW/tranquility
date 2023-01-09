@@ -270,6 +270,22 @@ function Fraction:floor ()
     return self:numerator()//self:denominator()
 end
 
+function Fraction:min(other)
+    if self<other then
+        return self
+    else
+        return other
+    end
+end
+
+function Fraction:max(other)
+    if self>other then
+        return self
+    else
+        return other
+    end
+end
+
 function Fraction:show()
     return string.format('%d/%d',self:numerator(),self:denominator())
 end

@@ -110,4 +110,21 @@ function TestTimeSpan__withEnd()
     local ts = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,6))
     lu.assertEquals(ts:withEnd(add1), TimeSpan:new(Fraction:new(1,2), Fraction:new(11,6)))
 end
+
+-- I am uncomfortable with this function returning nil... 
+-- I will consider a refactor after I have a working system
+function TestTimeSpan__intersection()
+    local ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    local ts2 = TimeSpan:new(Fraction:new(2,3), Fraction:new(2,2))
+    local expected = TimeSpan:new(Fraction:new(2,3),Fraction:new(2,2))
+    lu.assertEquals(ts1:intersection(ts2), expected)
+    lu.assertEquals(ts2:intersection(ts1), expected)
+    ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
+    ts2 = TimeSpan:new(Fraction:new(5,4), Fraction:new(7,4))
+    lu.assertNil(ts1:intersection(ts2))
+    lu.assertNil(ts2:intersection(ts1))
+    ts1 = TimeSpan:new(Fraction:new(5,4), Fraction:new(6,4))
+    ts2 = TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4))
+    lu.assertNil(ts1:intersection(ts2))
+end
 --os.exit( lu.LuaUnit.run() )

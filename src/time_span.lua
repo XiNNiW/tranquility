@@ -101,3 +101,19 @@ end
 function TimeSpan:withEnd(func)
     return TimeSpan:new(self:beginTime(), func(self:endTime()))
 end
+
+function TimeSpan:intersection(other)
+    local startOfIntersection = self:beginTime():max(other:beginTime())
+    local endOfIntersection = self:endTime():min(other:endTime())
+
+    if startOfIntersection>endOfIntersection then return nil end
+    if startOfIntersection==endOfIntersection then
+        if (startOfIntersection==self:endTime()) and (self:beginTime()<self:endTime()) then
+            return nil
+        end
+        if (startOfIntersection==other:endTime()) and (other:beginTime()<other:endTime()) then
+            return nil
+        end
+    end
+    return TimeSpan:new(startOfIntersection, endOfIntersection)
+end

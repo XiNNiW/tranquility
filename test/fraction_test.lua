@@ -173,6 +173,19 @@ function TestFraction__eq()
     lu.assertFalse(Fraction:new(254,255) == Fraction:new(255,256))
 end
 
+function TestFraction__min()
+    lu.assertEquals(Fraction:new(3,4):min(Fraction:new(5,6)), Fraction:new(3,4))
+    lu.assertEquals(Fraction:new(3,4):min(Fraction:new(3,6)), Fraction:new(3,6))
+    lu.assertEquals(Fraction:new(3,4):min(Fraction:new(-5,6)), Fraction:new(-5,6))
+    lu.assertEquals(Fraction:new(-3,4):min(Fraction:new(-5,6)), Fraction:new(-5,6))
+end
+
+function TestFraction__max()
+    lu.assertEquals(Fraction:new(3,4):max(Fraction:new(5,6)), Fraction:new(5,6))
+    lu.assertEquals(Fraction:new(3,4):max(Fraction:new(3,6)), Fraction:new(3,4))
+    lu.assertEquals(Fraction:new(3,4):max(Fraction:new(-5,6)), Fraction:new(3,4))
+    lu.assertEquals(Fraction:new(-3,4):max(Fraction:new(-5,6)), Fraction:new(-3,4))
+end
 function TestFraction__show()
     lu.assertEquals(Fraction:new(1,2):show(), "1/2")
 end
