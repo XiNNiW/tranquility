@@ -128,6 +128,8 @@ function TestTimeSpan__intersection()
     lu.assertNil(ts1:intersection(ts2))
 end
 
+-- I am also uncomfortable with this function as a solution
+-- I will be curious to see if both are used
 function TestTimeSpan__intersection_e()
     local ts1 = TimeSpan:new(Fraction:new(1,2), Fraction:new(5,4))
     local ts2 = TimeSpan:new(Fraction:new(2,3), Fraction:new(2,2))
