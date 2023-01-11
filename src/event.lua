@@ -13,12 +13,14 @@ function Event:create (o)
     return o
 end
 
-function Event:new(whole, part, value, context)
+function Event:new(whole, part, value, context, stateful)
+    if(stateful and type(value) ~= "function") then error("Event: stateful event values must be of type function") end
     return Event:create{
         _whole=whole,
         _part=part,
         _value=value,
-        _context=context
+        _context=context,
+        _stateful = stateful
     }
 end
 
@@ -31,6 +33,14 @@ function Event:wholeOrPart()
         return self._part
     end
     return self._whole
+end
+
+function Event:withSpan(func)
+    return Event:new(self._whole, func(self._part), self._value, self._context, self._stateful)
+end
+
+function Event:withValue(func)
+    return Event:new(self._whole, self._part, func(self._value), self._context, self._stateful)
 end
 
 function Event:hasOnset()
