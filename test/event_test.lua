@@ -180,7 +180,7 @@ function TestsEvent__combineContext()
         TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
         TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
         6,
-        {thing1="something else", thing3="more cowbell", locations={ 4,5,6 }},
+        {thing1="something else", thing3="more cowbell", locations={4,5,6}},
         false
     )
 
@@ -207,4 +207,23 @@ function TestsEvent__combineContext()
     expectedContext = {thing1="something else", thing2=5, thing3= "more cowbell", locations={1,2,3}}
 
     lu.assertEquals(event1:combineContext(event2), expectedContext)
+end
+
+function TestEvent__setContext()
+    local event = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {thing="something"},
+        false
+    )
+    local newContext = {thing2="something else"}
+    local expectedEvent = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        newContext,
+        false
+    )
+    lu.assertEquals(event:setContext(newContext), expectedEvent)
 end

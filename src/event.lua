@@ -88,6 +88,10 @@ function Event:combineContext(other)
     return newContext
 end
 
+function Event:setContext(newContext)
+    return Event:new(self._whole, self._part, self._value, newContext, self._stateful)
+end
+
 function Event:__eq(other)
     return
         (self._part==other._part) and
