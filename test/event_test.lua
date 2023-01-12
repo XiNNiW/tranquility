@@ -124,3 +124,45 @@ function TestEvent__spanEquals()
     )
     lu.assertTrue(event4:spanEquals(event5))
 end
+
+function TestEvent__equals()
+    local event1 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {},
+        false
+    )
+    local event2 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {},
+        false
+    )
+    lu.assertTrue(event1 == event2)
+    local event3 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        6,
+        {},
+        false
+    )
+    lu.assertFalse(event1 == event3)
+    local event4 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(3,4), Fraction:new(1,1)),
+        5,
+        {},
+        false
+    )
+    lu.assertFalse(event1 == event4)
+    local event5 = Event:new(
+        TimeSpan:new(Fraction:new(3,4), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {},
+        false
+    )
+    lu.assertFalse(event1 == event5)
+end
