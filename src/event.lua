@@ -14,6 +14,7 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
+require("table")
 
 Event = {
     _whole=nil,
@@ -72,6 +73,21 @@ function Event:spanEquals(other)
     return ((other._whole == nil) and (self._whole == nil)) or (other._whole == self._whole)
 end
 
+function Event:combineContext(other)
+    local newContext = {}
+    for key, value in pairs(self._context) do
+        newContext[key] = value
+    end
+    for key, value in pairs(other._context) do
+        newContext[key] = value
+    end
+    local locations1 = self._context.locations or {}
+    local locations2 = other._context.locations or {}
+    local newLocations = ListConcat(locations1, locations2)
+    newContext.locations = newLocations
+    return newContext
+end
+
 function Event:__eq(other)
     return
         (self._part==other._part) and
@@ -79,6 +95,17 @@ function Event:__eq(other)
         (self._value == other._value) and
         CompareTable(self._context, other._context) and
         (self._stateful == other._stateful)
+end
+
+function ListConcat(rhs,lhs)
+    local newList = {}
+    for index, value in pairs(rhs) do
+        newList[index] = value
+    end
+    for index, value in pairs(lhs) do
+        newList[index+#(rhs)]=value
+    end
+    return newList
 end
 
 function CompareTable(table1,table2,ignore_mt)

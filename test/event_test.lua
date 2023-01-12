@@ -166,3 +166,45 @@ function TestEvent__equals()
     )
     lu.assertFalse(event1 == event5)
 end
+
+function TestsEvent__combineContext()
+    local event1 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {thing1="something", thing2=5, locations= {1,2,3}},
+        false
+    )
+
+    local event2 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        6,
+        {thing1="something else", thing3="more cowbell", locations={ 4,5,6 }},
+        false
+    )
+
+    local expectedContext = {thing1="something else", thing2=5, thing3= "more cowbell", locations={1,2,3,4,5,6}}
+
+    lu.assertEquals(event1:combineContext(event2), expectedContext)
+
+    event1 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5,
+        {thing1="something", thing2=5, locations= {1,2,3}},
+        false
+    )
+
+    event2 = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        6,
+        {thing1="something else", thing3="more cowbell"},
+        false
+    )
+
+    expectedContext = {thing1="something else", thing2=5, thing3= "more cowbell", locations={1,2,3}}
+
+    lu.assertEquals(event1:combineContext(event2), expectedContext)
+end
