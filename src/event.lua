@@ -92,6 +92,28 @@ function Event:setContext(newContext)
     return Event:new(self._whole, self._part, self._value, newContext, self._stateful)
 end
 
+function Event:hasWhole()
+    return self._whole ~= nil
+end
+
+function Event:show()
+    local partStartsWithWhole = self:hasWhole() and (self._whole:beginTime()==self._part:beginTime())
+    local partEndsWithWhole   = self:hasWhole() and (self._whole:endTime()==self._part:endTime())
+    local partFormat = '(%s)'
+
+    if partStartsWithWhole and partEndsWithWhole then
+        partFormat = '%s'
+    elseif partStartsWithWhole then
+        partFormat = '(%s) ⇝'
+    else
+        partFormat = '(%s) ⇜'
+    end
+
+    local partString = string.format(partFormat, self._part:show())
+
+    return string.format('[%s |%s]', partString, self._value)
+end
+
 function Event:__eq(other)
     return
         (self._part==other._part) and

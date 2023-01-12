@@ -227,3 +227,26 @@ function TestEvent__setContext()
     )
     lu.assertEquals(event:setContext(newContext), expectedEvent)
 end
+
+function TestEvent__show()
+    local event = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(2,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        5
+    )
+    lu.assertEquals(event:show(), "[(1/2 → 1/1) ⇝ |5]")
+    event = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        6
+    )
+    lu.assertEquals(event:show(), "[1/2 → 1/1 |6]")
+    event = Event:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(1,1)),
+        TimeSpan:new(Fraction:new(3,4), Fraction:new(1,1)),
+        6
+    )
+    lu.assertEquals(event:show(), "[(3/4 → 1/1) ⇜ |6]")
+
+
+end
