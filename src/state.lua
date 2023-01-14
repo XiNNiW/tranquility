@@ -15,18 +15,31 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
 require("math")
-require('src/time_span')
+require("table")
+require('src/fraction')
 
-Pattern = {_query=function()end}
+State = {_span=TimeSpan:create{}, _controls={}}
 
-function Pattern:create (o)
+function State:create (o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
     return o
 end
 
-function Pattern:new(query)
-    return Pattern:create{_query=query}
+function State:new(span, controls)
+    return State:create{_span=span, _controls=controls}
+end
+
+function State:setSpan(span)
+   return State:new(span, self._controls)
+end
+
+function State:withSpan(func)
+    return self:setSpan(func(self._span))
+end
+
+function State:setControls(controls)
+    return State:new(self._span, controls)
 end
 

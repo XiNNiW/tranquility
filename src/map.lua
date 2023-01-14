@@ -14,19 +14,11 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
-require("math")
-require('src/time_span')
 
-Pattern = {_query=function()end}
-
-function Pattern:create (o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
+function Map(func, collection)
+    local mapped = {}
+    for key, value in pairs(collection) do
+        mapped[key] = func(value)
+    end
+    return mapped
 end
-
-function Pattern:new(query)
-    return Pattern:create{_query=query}
-end
-

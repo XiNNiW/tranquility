@@ -123,7 +123,7 @@ function Event:__eq(other)
         (self._stateful == other._stateful)
 end
 
-function ListConcat(rhs,lhs)
+function ListConcat(rhs, lhs)
     local newList = {}
     for index, value in pairs(rhs) do
         newList[index] = value
