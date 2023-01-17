@@ -17,7 +17,7 @@ Copyright (C) 2023 David Minnix
 require("math")
 require('src/time_span')
 
-Pattern = {_query=function(timespan) return {} end}
+Pattern = {_query=function(state) return {} end}
 
 function Pattern:create (o)
     o = o or {}
@@ -30,8 +30,8 @@ function Pattern:new(query)
     return Pattern:create{_query=query}
 end
 
-function Pattern:query(timespan)
-    return self._query(timespan)
+function Pattern:query(state)
+    return self._query(state)
 end
 
 
