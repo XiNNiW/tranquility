@@ -13,13 +13,14 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]]--
+]] --
 require("math")
 require('src/time_span')
+require('src/map')
 
-Pattern = {_query=function(state) return {} end}
+Pattern = { _query = function(state) return {} end }
 
-function Pattern:create (o)
+function Pattern:create(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
@@ -27,12 +28,26 @@ function Pattern:create (o)
 end
 
 function Pattern:new(query)
-    return Pattern:create{_query=query}
+    return Pattern:create { _query = query }
 end
 
 function Pattern:query(state)
     return self._query(state)
 end
 
+function Pattern:queryArc(beginTime, endTime)
+    return self._query(State:new(TimeSpan:new(beginTime, endTime)))
+end
 
-
+function Pure(value)
+    local query = function (state)
+        return Map(
+            function(subspan)
+                local whole = TimeSpan:wholeCycle(subspan:beginTime())
+                return Event:new(whole, subspan, value)
+            end
+            , state:span():spanCycles()
+        )
+    end
+    return Pattern:new(query)
+end

@@ -57,3 +57,25 @@ function TestState__setControls()
     state = state:setControls(finalControls)
     lu.assertEquals(state._controls, finalControls)
 end
+
+function TestState__equals()
+    local state1 = State:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4)),
+        {something="red fish"}
+    )
+    local state2 = State:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4)),
+        {something="red fish"}
+    )
+    local state3 = State:new(
+        TimeSpan:new(Fraction:new(1,3), Fraction:new(3,4)),
+        {something="red fish"}
+    )
+    local state4 = State:new(
+        TimeSpan:new(Fraction:new(1,2), Fraction:new(3,4)),
+        {something="blue fish"}
+    )
+    lu.assertTrue(state1==state2)
+    lu.assertFalse(state1==state3)
+    lu.assertFalse(state1==state4)
+end

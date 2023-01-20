@@ -13,26 +13,30 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]]--
+]] --
 require("math")
 require("table")
-require('src/fraction')
+require('src/time_span')
 
-State = {_span=TimeSpan:create{}, _controls={}}
+State = { _span = TimeSpan:create {}, _controls = {} }
 
-function State:create (o)
+function State:create(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
     return o
 end
 
+function State:span()
+    return self._span
+end
+
 function State:new(span, controls)
-    return State:create{_span=span, _controls=controls}
+    return State:create { _span = span, _controls = controls }
 end
 
 function State:setSpan(span)
-   return State:new(span, self._controls)
+    return State:new(span, self._controls)
 end
 
 function State:withSpan(func)
@@ -43,3 +47,7 @@ function State:setControls(controls)
     return State:new(self._span, controls)
 end
 
+function State:__eq(other)
+
+    return (self._span==other._span) and CompareTables(self._controls, other._controls)
+end

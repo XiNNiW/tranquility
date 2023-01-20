@@ -15,6 +15,7 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
 require("table")
+require("src/compare_tables")
 
 Event = {
     _whole=nil,
@@ -119,7 +120,7 @@ function Event:__eq(other)
         (self._part==other._part) and
         (self._whole == other._whole) and
         (self._value == other._value) and
-        CompareTable(self._context, other._context) and
+        CompareTables(self._context, other._context) and
         (self._stateful == other._stateful)
 end
 
@@ -134,17 +135,4 @@ function ListConcat(rhs, lhs)
     return newList
 end
 
-function CompareTable(table1,table2,ignore_mt)
-    if type(table1) ~= type(table2) then return false end
-    local metatable1 = getmetatable(table1)
-    if not ignore_mt and metatable1 and metatable1.__eq then return table1 == table2 end
-    for key,value1 in pairs(table1) do
-        local value2 = table2[key]
-        if value2 == nil or not CompareTable(value1,value2) then return false end
-    end
-    for key,value2 in pairs(table2) do
-        local value1 = table1[key]
-        if value1 == nil or not CompareTable(value1,value2) then return false end
-    end
-    return true
-end
+

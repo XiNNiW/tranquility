@@ -248,5 +248,4 @@ function TestEvent__show()
     )
     lu.assertEquals(event:show(), "[(3/4 → 1/1) ⇜ |6]")
 
-
 end
