@@ -7,5 +7,6 @@ require('test/time_span_test')
 require('test/event_test')
 require('test/state_test')
 require('test/map_test')
+require('test/stream_test')
 
 os.exit( lu.LuaUnit.run() )
