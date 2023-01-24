@@ -15,8 +15,6 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
 require('math')
--- require('src/time_span')
-
 -- this is a quick and dirty port of python's Fraction library pulling in only the things i need to get a first version working
 -- this should probably all be C calls instead
 --TODO

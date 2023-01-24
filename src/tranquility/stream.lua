@@ -1,6 +1,6 @@
 require("tranquility/pattern")
---require("losc")
---require("losc.plugins.udp-socket")
+require("losc")
+require("losc.plugins.udp-socket")
 
 
 function FirstOsc()
