@@ -16,7 +16,7 @@ Copyright (C) 2023 David Minnix
 ]]--
 require("math")
 require("table")
-require('src/fraction')
+require('tranquility/fraction')
 
 TimeSpan = {_begin=Fraction:new(1,1), _end=Fraction:new(1,1)}
 

@@ -16,7 +16,8 @@ Copyright (C) 2023 David Minnix
 ]] --
 require("math")
 require("table")
-require('src/time_span')
+require('tranquility/time_span')
+require('tranquility/compare_tables')
 
 State = { _span = TimeSpan:create {}, _controls = {} }
 

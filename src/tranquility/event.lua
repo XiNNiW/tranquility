@@ -15,7 +15,8 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]--
 require("table")
-require("src/compare_tables")
+require("tranquility/compare_tables")
+require("tranquility/time_span")
 
 Event = {
     _whole=nil,

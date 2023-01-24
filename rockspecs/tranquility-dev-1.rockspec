@@ -19,13 +19,16 @@ dependencies = {
 build = {
    type = "builtin",
    modules = {
-      compare_tables = "src/compare_tables.lua",
-      event = "src/event.lua",
-      fraction = "src/fraction.lua",
-      map = "src/map.lua",
-      pattern = "src/pattern.lua",
-      state = "src/state.lua",
-      stream = "src/stream.lua",
-      time_span = "src/time_span.lua"
-   }
+      compare_tables= "src/tranquility/compare_tables.lua",
+      event = "src/tranquility/event.lua",
+      fraction= "src/tranquility/fraction.lua",
+      map = "src/tranquility/map.lua",
+      pattern = "src/tranquility/pattern.lua",
+      state = "src/tranquility/state.lua",
+      stream = "src/tranquility/stream.lua",
+      time_span = "src/tranquility/time_span.lua"
+   },
+  -- install = {
+  --    bin = {"bin/tranquility"}
+  -- }
 }
