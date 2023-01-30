@@ -16,9 +16,12 @@ Copyright (C) 2023 David Minnix
 ]] --
 require("math")
 require('tranquility/time_span')
+require('tranquility/event')
+require('tranquility/state')
 require('tranquility/map')
+require('tranquility/filter')
 
-Pattern = { _query = function(state) return {} end }
+Pattern = { _query = function(_) return {} end }
 
 function Pattern:create(o)
     o = o or {}
@@ -37,6 +40,18 @@ end
 
 function Pattern:queryArc(beginTime, endTime)
     return self._query(State:new(TimeSpan:new(beginTime, endTime)))
+end
+
+function Pattern:onsetsOnly()
+    return self:filterEvents(function (event)
+        return event:hasOnset()
+    end)
+end
+
+function Pattern:filterEvents(filterFunc)
+    return Pattern:new(function (state)
+        return Filter(self:query(state), filterFunc)
+    end)
 end
 
 function Pure(value)

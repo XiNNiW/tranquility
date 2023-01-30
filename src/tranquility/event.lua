@@ -44,6 +44,10 @@ function Event:new(whole, part, value, context, stateful)
     }
 end
 
+function Event:value()
+    return self._value
+end
+
 function Event:duration()
     return self._whole:endTime() - self._whole:beginTime()
 end

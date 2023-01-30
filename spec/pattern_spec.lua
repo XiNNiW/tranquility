@@ -17,12 +17,32 @@ describe("Pattern", function()
     describe("New", function()
         it("should create with specified query",
             function()
-                local p = Pattern:new(function(state)
+                local p = Pattern:new(function(_)
                     return { Event:create() }
                 end)
                 local events = p:query(State:create())
                 assert.are.same(events, { Event:create() })
             end)
+    end)
+    describe("filterEvents", function()
+        it("should return new pattern with events removed based on filter func", function()
+            local whole1 = TimeSpan:new(Fraction:new(1, 2), Fraction:new(2, 1))
+            local part1 = TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1))
+            local event1 = Event:new(whole1, part1, 1, {}, false)
+            local whole2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(3, 1))
+            local part2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(1, 1))
+            local event2 = Event:new(whole2, part2, 2, {}, false)
+            local events = { event1, event2 }
+            local p = Pattern:new(function(_)
+                return events
+            end)
+            local filterFunction = function (e)
+                return e:value()==1
+            end
+            local filteredPattern = p:filterEvents(filterFunction)
+            local filteredEvents = filteredPattern:query()
+            assert.are.same(filteredEvents, {event1})
+        end)
     end)
     describe("Pure", function()
         it("should create Pattern of a single value repeating once per cycle",
