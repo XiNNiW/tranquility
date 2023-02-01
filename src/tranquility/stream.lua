@@ -47,6 +47,14 @@ function Stream:notifyTick(cycle, s, cps, bpc, mill, now)
     end
     local cycleFrom = cycle:beginTime()
     local cycleTo = cycle:endTime()
+    local events = self._pattern:onsetsOnly().queryArc(cycleFrom, cycleTo)
+
+    for i, ev in pairs(events) do
+        local cycleOn = ev:whole():beginTime()
+        local cycleOff = ev:whole():endTime()
+
+
+    end
 
 end
 

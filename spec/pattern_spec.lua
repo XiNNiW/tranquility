@@ -36,12 +36,31 @@ describe("Pattern", function()
             local p = Pattern:new(function(_)
                 return events
             end)
-            local filterFunction = function (e)
-                return e:value()==1
+            local filterFunction = function(e)
+                return e:value() == 1
             end
             local filteredPattern = p:filterEvents(filterFunction)
             local filteredEvents = filteredPattern:query()
-            assert.are.same(filteredEvents, {event1})
+            assert.are.same(filteredEvents, { event1 })
+        end)
+    end)
+    describe("onsetsOnly", function()
+        it("should return only events where the start of the whole equals the start of the part", function()
+
+            local whole1 = TimeSpan:new(Fraction:new(1, 2), Fraction:new(2, 1))
+            local part1 = TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1))
+            local event1 = Event:new(whole1, part1, 1, {}, false)
+            local whole2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(3, 1))
+            local part2 = TimeSpan:new(Fraction:new(5, 6), Fraction:new(1, 1))
+            local event2 = Event:new(whole2, part2, 2, {}, false)
+            local events = { event1, event2 }
+            local p = Pattern:new(function(_)
+                return events
+            end)
+
+            local patternWithOnsetsOnly = p:onsetsOnly()
+
+            assert.are.same(patternWithOnsetsOnly:query(), { event1 })
         end)
     end)
     describe("Pure", function()

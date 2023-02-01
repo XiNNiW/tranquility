@@ -14,8 +14,10 @@ For me the main purpose of this project is to learn about how to implement a liv
 }
 dependencies = {
     "lua >= 5.1",
+    "luasec >= 1.2.0-1",
     "losc >= 1.0.1-1",
-    "luasocket >= 3.1.0-1"
+    "luasocket >= 3.1.0-1",
+    "abletonlink >= 1.0.0-1"
 }
 build = {
    type = "builtin",
