@@ -15,11 +15,10 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
 require("math")
-require('tranquility/time_span')
-require('tranquility/event')
-require('tranquility/state')
-require('tranquility/map')
-require('tranquility/filter')
+require('tranquility.time_span')
+require('tranquility.state')
+require('tranquility.map')
+require('tranquility.filter')
 
 Pattern = { _query = function(_) return {} end }
 
@@ -39,30 +38,61 @@ function Pattern:query(state)
 end
 
 function Pattern:queryArc(beginTime, endTime)
-    return self._query(State:new(TimeSpan:new(beginTime, endTime)))
+    local span = TimeSpan:new(beginTime, endTime)
+    local state = State:new(span)
+    return self._query(state)
 end
 
 function Pattern:onsetsOnly()
-    return self:filterEvents(function (event)
+    return self:filterEvents(function(event)
         return event:hasOnset()
     end)
 end
 
 function Pattern:filterEvents(filterFunc)
-    return Pattern:new(function (state)
+    return Pattern:new(function(state)
         return Filter(self:query(state), filterFunc)
     end)
 end
 
+function Pattern:withValue(func)
+    local query = function(state)
+        local mapped = {}
+        local events = self:query(state)
+        for _, e in pairs(events) do
+            table.insert(mapped, e:withValue(func))
+        end
+        return mapped
+    end
+    return Pattern:new(query)
+end
+
+function Pattern:fmap(func)
+    return self:withValue(func)
+end
+
 function Pure(value)
-    local query = function (state)
+    local query = function(state)
         return Map(
             function(subspan)
                 local whole = TimeSpan:wholeCycle(subspan:beginTime())
                 return Event:new(whole, subspan, value)
-            end
-            , state:span():spanCycles()
+            end,
+            state:span():spanCycles()
         )
     end
     return Pattern:new(query)
+end
+
+function _sequenceCount(x)
+    -- TODO: needs to handle lists!
+    if type(x) == "Pattern" then
+        return table.pack(x, 1)
+    else
+        return table.pack(Pure(x), 1)
+    end
+end
+
+function Sequence(x)
+    return _sequenceCount(x)[1]
 end

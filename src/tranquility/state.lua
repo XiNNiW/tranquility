@@ -50,5 +50,5 @@ end
 
 function State:__eq(other)
 
-    return (self._span==other._span) and CompareTables(self._controls, other._controls)
+    return (self._span == other._span) and CompareTables(self._controls, other._controls)
 end

@@ -13,20 +13,20 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]]--
+]] --
 require("table")
-require("tranquility/compare_tables")
-require("tranquility/time_span")
+require("tranquility.compare_tables")
+require("tranquility.time_span")
 
 Event = {
-    _whole=nil,
-    _part=TimeSpan:new(),
-    _value=nil,
+    _whole = nil,
+    _part = TimeSpan:new(),
+    _value = nil,
     _context = {},
-    _stateful= false
+    _stateful = false
 }
 
-function Event:create (o)
+function Event:create(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
@@ -34,12 +34,12 @@ function Event:create (o)
 end
 
 function Event:new(whole, part, value, context, stateful)
-    if(stateful and type(value) ~= "function") then error("Event: stateful event values must be of type function") end
-    return Event:create{
-        _whole=whole,
-        _part=part,
-        _value=value,
-        _context=context,
+    if (stateful and type(value) ~= "function") then error("Event: stateful event values must be of type function") end
+    return Event:create {
+        _whole = whole,
+        _part = part,
+        _value = value,
+        _context = context,
         _stateful = stateful
     }
 end
@@ -48,12 +48,16 @@ function Event:value()
     return self._value
 end
 
+function Event:whole()
+    return self._whole
+end
+
 function Event:duration()
     return self._whole:endTime() - self._whole:beginTime()
 end
 
 function Event:wholeOrPart()
-    if self._whole~=nil then
+    if self._whole ~= nil then
         return self._whole
     end
     return self._part
@@ -72,7 +76,7 @@ function Event:withValue(func)
 end
 
 function Event:hasOnset()
-    return (self._whole ~= nil) and (self._whole:beginTime()==self._part:beginTime())
+    return (self._whole ~= nil) and (self._whole:beginTime() == self._part:beginTime())
 end
 
 function Event:spanEquals(other)
@@ -103,9 +107,9 @@ function Event:hasWhole()
 end
 
 function Event:show()
-    local partStartsWithWhole = self:hasWhole() and (self._whole:beginTime()==self._part:beginTime())
-    local partEndsWithWhole   = self:hasWhole() and (self._whole:endTime()==self._part:endTime())
-    local partFormat = '(%s)'
+    local partStartsWithWhole = self:hasWhole() and (self._whole:beginTime() == self._part:beginTime())
+    local partEndsWithWhole   = self:hasWhole() and (self._whole:endTime() == self._part:endTime())
+    local partFormat          = '(%s)'
 
     if partStartsWithWhole and partEndsWithWhole then
         partFormat = '%s'
@@ -121,8 +125,7 @@ function Event:show()
 end
 
 function Event:__eq(other)
-    return
-        (self._part==other._part) and
+    return (self._part == other._part) and
         (self._whole == other._whole) and
         (self._value == other._value) and
         CompareTables(self._context, other._context) and
@@ -135,9 +138,7 @@ function ListConcat(rhs, lhs)
         newList[index] = value
     end
     for index, value in pairs(lhs) do
-        newList[index+#(rhs)]=value
+        newList[index + #(rhs)] = value
     end
     return newList
 end
-
-

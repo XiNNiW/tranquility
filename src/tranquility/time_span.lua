@@ -13,19 +13,19 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]]--
+]] --
 require("math")
 require("table")
-require('tranquility/fraction')
+require('tranquility.fraction')
 
-TimeSpan = {_begin=Fraction:new(1,1), _end=Fraction:new(1,1)}
+TimeSpan = { _begin = Fraction:new(1, 1), _end = Fraction:new(1, 1) }
 
 function TimeSpan:sam(frac)
     return Fraction:new(frac:floor())
 end
 
 function TimeSpan:nextSam(frac)
-    return Fraction:new(frac:floor()+1)
+    return Fraction:new(frac:floor() + 1)
 end
 
 function TimeSpan:wholeCycle(frac)
@@ -36,7 +36,7 @@ function TimeSpan:cyclePos(frac)
     return frac - TimeSpan:sam(frac)
 end
 
-function TimeSpan:create (o)
+function TimeSpan:create(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
@@ -44,7 +44,7 @@ function TimeSpan:create (o)
 end
 
 function TimeSpan:new(_begin, _end)
-    return TimeSpan:create{_begin=_begin, _end=_end}
+    return TimeSpan:create { _begin = _begin, _end = _end }
 end
 
 function TimeSpan:beginTime()
@@ -62,7 +62,7 @@ function TimeSpan:spanCycles()
     local end_sam = TimeSpan:sam(_end)
 
     if _begin == _end then
-        return {TimeSpan:new(_begin, _end)}
+        return { TimeSpan:new(_begin, _end) }
     end
 
     while _end > _begin do
@@ -84,17 +84,17 @@ function TimeSpan:duration()
 end
 
 function TimeSpan:midpoint()
-    return self:beginTime() + (self:duration()/Fraction:new(2,1))
+    return self:beginTime() + (self:duration() / Fraction:new(2, 1))
 end
 
 function TimeSpan:cycleArc()
     local b = TimeSpan:cyclePos(self:beginTime())
     local e = b + self:duration()
-    return TimeSpan:new(b,e)
+    return TimeSpan:new(b, e)
 end
 
 function TimeSpan:__eq(rhs)
-    return (self:beginTime()==rhs:beginTime()) and (self:endTime()==rhs:endTime())
+    return (self:beginTime() == rhs:beginTime()) and (self:endTime() == rhs:endTime())
 end
 
 function TimeSpan:show()
@@ -113,12 +113,12 @@ function TimeSpan:intersection(other)
     local startOfIntersection = self:beginTime():max(other:beginTime())
     local endOfIntersection = self:endTime():min(other:endTime())
 
-    if startOfIntersection>endOfIntersection then return nil end
-    if startOfIntersection==endOfIntersection then
-        if (startOfIntersection==self:endTime()) and (self:beginTime()<self:endTime()) then
+    if startOfIntersection > endOfIntersection then return nil end
+    if startOfIntersection == endOfIntersection then
+        if (startOfIntersection == self:endTime()) and (self:beginTime() < self:endTime()) then
             return nil
         end
-        if (startOfIntersection==other:endTime()) and (other:beginTime()<other:endTime()) then
+        if (startOfIntersection == other:endTime()) and (other:beginTime() < other:endTime()) then
             return nil
         end
     end

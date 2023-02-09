@@ -14,15 +14,31 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
-require("tranquility/stream_target")
-require("tranquility/pattern")
+require("os")
 local losc = require('losc')
+local bundle = require('losc.bundle')
 local plugin = require('losc.plugins.udp-socket')
+require("tranquility.stream_target")
+
+
+function dump(o)
+    if type(o) == 'table' then
+        local s = '{ '
+        for k, v in pairs(o) do
+            if type(k) ~= 'number' then k = '"' .. k .. '"' end
+            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
+        end
+        return s .. '} '
+    else
+        return tostring(o)
+    end
+end
 
 Stream = {
     target = StreamTarget:new(),
     _osc = losc.new { plugin = plugin.new { sendAddr = StreamTarget.address, sendPort = StreamTarget.port } },
     _isPlaying = false,
+    _latency = 0.2,
     _pattern = nil
 }
 
@@ -41,44 +57,64 @@ function Stream:new(target)
     }
 end
 
-function Stream:notifyTick(cycle, s, cps, bpc, mill, now)
-    if ((not self._isPlaying) or (not self.pattern)) then
+function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
+    if ((not self._pattern)) then
         return
     end
-    local cycleFrom = cycle:beginTime()
-    local cycleTo = cycle:endTime()
-    local events = self._pattern:onsetsOnly().queryArc(cycleFrom, cycleTo)
+    local events = self._pattern:onsetsOnly():queryArc(
+        Fraction:new(cycleFrom),
+        Fraction:new(cycleTo)
+    )
+    print(events)
 
-    for i, ev in pairs(events) do
+    for _, ev in pairs(events) do
         local cycleOn = ev:whole():beginTime()
         local cycleOff = ev:whole():endTime()
+        local linkOn = s:time_at_beat(cycleOn:asFloat() * bpc, 0)
+        local linkOff = s:time_at_beat(cycleOff:asFloat() * bpc, 0)
+        local deltaSeconds = (linkOff - linkOn) / mill
+        local linkSecs = now / mill
+        local libloDiff = losc:now() + (-linkSecs)
+        local ts = libloDiff + self._latency + (linkOn / mill)
 
+        local v = ev:value()
+        v["cps"] = cps
+        v["cycle"] = cycleOn:asFloat()
+        v["delta"] = deltaSeconds
+
+        local msg = {}
+        for key, value in pairs(v) do
+            table.insert(msg, key)
+            table.insert(msg, value)
+        end
+        print("send", dump(v))
+        msg["types"] = GenerateTypesString(msg)
+        msg["address"] = '/dirt/play'
+        --local b = self._osc.new_bundle(ts, msg)
+        --local b = self._osc.new_bundle(ts, self._osc.new_message(msg))
+        local b = self._osc.new_message(msg)
+        --bundle.validate(b)
+        print(dump(b))
+        self._osc:send(b)
 
     end
 
 end
 
--- Create a message
---local message = osc.new_message {
---  address = '/foo/bar',
---  types = 'ifsb',
---  123, 1.234, 'hi', 'blobdata'
---}
-
--- Send it over UDP
-
-
-function FirstOsc()
-    local p = Pure("bd")
-    local events = p:query(State:new(TimeSpan:new(Fraction:new(0, 1), Fraction:new(0, 1)), {}))
-    for _, e in pairs(events) do
-        local message = losc.new { plugin = plugin.new { sendAddr = StreamTarget.address, sendPort = StreamTarget.port } }
-            .new_message {
-                address = '/test/addr',
-                types = 's',
-                e:value()
-            }
-        losc.new { plugin = plugin.new { sendAddr = StreamTarget.address, sendPort = StreamTarget.port } }:send(message)
+function GenerateTypesString(msg)
+    local types = ""
+    for _, x in pairs(msg) do
+        local typeMap = {
+            ["table"] = "b",
+            ["number"] = "f",
+            ["string"] = "s",
+        }
+        if typeMap[type(x)] then
+            types = types .. typeMap[type(x)]
+        else
+            types = types .. "b"
+        end
     end
-    return 2
+
+    return types
 end

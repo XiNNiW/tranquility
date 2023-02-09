@@ -15,15 +15,10 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
 
-StreamTarget = { name = "SuperDirt", address = "127.0.0.1", port = 57120, latency = 0.2, handshake = true };
+require("tranquility.pattern")
 
-function StreamTarget:create(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
-end
-
-function StreamTarget:new(target)
-    return StreamTarget:create(target)
+function S(args)
+    return Sequence(args):fmap(function(v)
+        return { sound = v }
+    end)
 end

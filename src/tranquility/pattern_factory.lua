@@ -14,16 +14,27 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
+require("tranquility.pattern")
+require("tranquility.link_clock")
+require("tranquility.stream")
 
-StreamTarget = { name = "SuperDirt", address = "127.0.0.1", port = 57120, latency = 0.2, handshake = true };
+Streams = {}
+DefaultClock = LinkClock:new()
 
-function StreamTarget:create(o)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    return o
+function P(key, pattern)
+    if not Streams[key] then
+        local stream = Stream:new()
+        DefaultClock:subscribe(stream)
+        Streams[key] = stream
+
+    end
+    Streams[key]._pattern = pattern
+    return pattern
 end
 
-function StreamTarget:new(target)
-    return StreamTarget:create(target)
+function Hush()
+    for _, stream in pairs(Streams) do
+        DefaultClock:unsubscribe(stream)
+    end
+    Streams = {}
 end

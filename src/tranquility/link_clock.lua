@@ -9,7 +9,7 @@ Copyright (C) 2023 David Minnix
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    GNU General Public License for more detailself._linkSessionState:
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -17,7 +17,7 @@ Copyright (C) 2023 David Minnix
 require("table")
 require("coroutine")
 local socket = require("socket")
-local abeltonlink = require("abletonlink")
+local abletonlink = require("abletonlink")
 
 function Sleep(sec)
     socket.select(nil, nil, sec)
@@ -45,11 +45,11 @@ function LinkClock:new(bpm, sampleRate, beatsPerCycle)
     bpm = bpm or 120
     sampleRate = sampleRate or (1 / 20)
     beatsPerCycle = beatsPerCycle or 4
-    local link = abeltonlink.create(bpm)
-    local session_state = abeltonlink.create_session_state()
+    local link = abletonlink.create(bpm)
+    local session_state = abletonlink.create_session_state()
     return LinkClock:create {
         bpm = bpm, sampleRate = sampleRate, beatsPerCycle = beatsPerCycle,
-        _link = link, _link_session_state = session_state
+        _link = link, _linkSessionState = session_state, _subscribers = {}
     }
 end
 
@@ -82,47 +82,48 @@ function LinkClock:unsubscribe(subscriber)
 end
 
 function LinkClock:createNotifyCoroutine()
-    self._notify_coroutine = coroutine.create(function()
-        self:_notifyCoroutineTarget()
+    print("create")
+    self._notifyCoroutine = coroutine.create(function()
+        print("setup", self._isRunning)
+
+        self._link:enable(true)
+        self._link:enable_start_stop_sync(true)
+
+        local start = self._link:clock_micros()
+
+        local ticks = 0
+        local mill = 1000000
+        local frame = self.sampleRate * mill
+
+        print("OK...")
+
+        while self._isRunning do
+            print("tick")
+            ticks = ticks + 1
+
+            local logicalNow = math.floor(start + (ticks * frame))
+            local logicalNext = math.floor(start + ((ticks + 1) * frame))
+            local now = self._link:clock_micros()
+
+            local wait = (logicalNow - now) / mill
+            if wait > 0 then
+                Sleep(wait)
+            end
+
+            if not self._isRunning then break end
+
+            self._link:capture_audio_session_state(self._linkSessionState)
+            local secondsPerMinute = 60
+            local cps = (self._linkSessionState:tempo() / self.beatsPerCycle) / secondsPerMinute
+            local cycleFrom = self._linkSessionState:beat_at_time(logicalNow, 0) / self.beatsPerCycle
+            local cycleTo = self._linkSessionState:beat_at_time(logicalNext, 0) / self.beatsPerCycle
+
+            for _, sub in pairs(self._subscribers) do
+                sub:notifyTick(cycleFrom, cycleTo, self._linkSessionState, cps, self.beatsPerCycle, mill, now)
+            end
+            coroutine.yield()
+        end
+
+        self._linkEnabled = false
     end)
-end
-
-function LinkClock:_notifyCoroutineTarget()
-    self._link.enabled = true
-    self._link.startStopSyncEnabled = true
-
-    local start = self._link.clock().micros()
-
-    local ticks = 0
-    local mill = 1000000
-    local frame = self.rate * mill
-
-    while self._isRunning do
-        ticks = ticks + 1
-
-        local logicalNow = math.floor(start + (ticks * frame))
-        local logicalNext = math.floor(start + ((ticks + 1) * frame))
-        local now = self._link.clock().micros()
-
-        local wait = (logicalNow - now) / mill
-        if wait > 0 then
-            Sleep(wait)
-        end
-
-        if not self._isRunning then break end
-
-        local s = self._link.captureSessionState()
-        local secondsPerMinute = 60
-        local cps = (s.tempo() / self.beatsPerCycle) / secondsPerMinute
-        local cycleFrom = s.beatAtTime(logicalNow, 0) / self.beatsPerCycle
-        local cycleTo = s.beatAtTime(logicalNext, 0) / self.beatsPerCycle
-
-        for _, sub in pairs(self._subscribers) do
-            sub.notifyTick(cycleFrom, cycleTo, s, cps, self.beatsPerCycle, mill, now)
-        end
-        coroutine.yield()
-    end
-
-    self._linkEnabled = false
-
 end

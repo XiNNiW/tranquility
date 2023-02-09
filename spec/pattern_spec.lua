@@ -2,7 +2,6 @@ local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
 require('tranquility/pattern')
-require('tranquility/time_span')
 require('tranquility/event')
 require('tranquility/state')
 
