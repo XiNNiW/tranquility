@@ -1,4 +1,3 @@
-
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
@@ -27,8 +26,11 @@ describe("State", function()
                 TimeSpan:new(Fraction:new(1, 2), Fraction:new(3, 4)),
                 expectedControls
             )
-            assert.are.equal(state._span, TimeSpan:new(Fraction:new(1, 2), Fraction:new(3, 4)))
-            assert.are.equal(state._controls, expectedControls)
+            assert.are.equal(state:span(), TimeSpan:new(Fraction:new(1, 2), Fraction:new(3, 4)))
+            assert.are.equal(state:controls(), expectedControls)
+            state = State:new(TimeSpan:new(Fraction:new(1, 16), Fraction:new(1, 1)))
+            assert.are.equal(state:span(), TimeSpan:new(Fraction:new(1, 16), Fraction:new(1, 1)))
+            assert.are.equal(state:controls(), {})
         end
     end)
 

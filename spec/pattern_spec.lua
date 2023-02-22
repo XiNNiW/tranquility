@@ -59,22 +59,52 @@ describe("Pattern", function()
 
             local patternWithOnsetsOnly = p:onsetsOnly()
 
-            assert.are.same(patternWithOnsetsOnly:query(), { event1 })
+            assert.are.same(patternWithOnsetsOnly:query(State:new(TimeSpan:new(Fraction:new(0), Fraction:new(3)))),
+                { event1 })
+        end)
+
+        it("pure patterns should not behave like continuous signals... they should have discrete onsets", function()
+
+            local p = Pure("bd")
+
+            local patternWithOnsetsOnly = p:onsetsOnly()
+            local expectedWhole = TimeSpan:new(Fraction:new(0), Fraction:new(1))
+            local expectedPart = TimeSpan:new(Fraction:new(0), Fraction:new(1))
+            local expectedEvent = Event:new(expectedWhole, expectedPart, "bd")
+            local actualEvents = patternWithOnsetsOnly:query(State:new(TimeSpan:new(Fraction:new(0), Fraction:new(1))))
+            assert.are.same(actualEvents,
+                { expectedEvent })
+            local querySpan = TimeSpan:new(Fraction:new(1, 16), Fraction:new(1))
+            local state = State:new(querySpan)
+            assert.are.equal(querySpan, state:span())
+            actualEvents = patternWithOnsetsOnly:query(state)
+            assert.are.same(actualEvents,
+                {})
         end)
     end)
     describe("Pure", function()
-        it("should create Pattern of a single value repeating once per cycle",
+        it("should create Pattern of a single value repeating once per cycle", function()
+            local atom = Pure(5)
+            local expectedEvents = {
+                Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
+                    TimeSpan:new(Fraction:new(0), Fraction:new(1)), 5)
+            }
+            local actualEvents = atom:queryArc(Fraction:new(0), Fraction:new(1))
+            assert.are.equal(#(actualEvents), #(expectedEvents))
+            assert.are.same(actualEvents[1], expectedEvents[1])
+            assert.are.same(actualEvents[1]._whole, expectedEvents[1]._whole)
+            assert.are.same(actualEvents[1]._part, expectedEvents[1]._part)
+            assert.are.same(actualEvents[1]._value, expectedEvents[1]._value)
+            local expectedEvent = Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
+                TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)), 5, {}, false)
+            actualEvents = atom:query(State:new(TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1))))
+            assert.are.same(actualEvents, { expectedEvent })
+            assert.are.same(actualEvents[1]._part, expectedEvent._part)
+            assert.are.same(actualEvents[1]._whole, expectedEvent._whole)
+            assert.are.same(actualEvents[1]._value, expectedEvent._value)
 
-            function()
-                local atom = Pure(5)
-                local expectedEvents = {
-                    Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
-                        TimeSpan:new(Fraction:new(0), Fraction:new(1)), 5)
-                }
-                local actualEvents = atom:queryArc(Fraction:new(0), Fraction:new(1))
-                assert.are.equal(#(actualEvents), #(expectedEvents))
-                assert.are.equal(actualEvents[0], expectedEvents[0])
-            end
+
+        end
         )
     end)
 

@@ -36,14 +36,26 @@ describe("Fraction", function()
             assert.are.equal(f:numerator(), 1)
             assert.are.equal(f:denominator(), 2)
             -- Does Fraction need to reduce decimal numbers to closest approximation?
-            --f = Fraction:new(1.5, 7.6)
-            -- assert.are.equal(f:numerator(), 1.5)
-            -- assert.are.equal(f:denominator(), 7.6)
+            f = Fraction:new(1.5)
+            assert.are.equal(f:numerator(), 3)
+            assert.are.equal(f:denominator(), 2)
+
+            f = Fraction:new(-1.5)
+            assert.are.equal(f:numerator(), -3)
+            assert.are.equal(f:denominator(), 2)
+
+            f = Fraction:new(0.777)
+            assert.are.equal(f:numerator(), 777)
+            assert.are.equal(f:denominator(), 1000)
+
+            f = Fraction:new(0.0)
+            assert.are.equal(f:numerator(), 0)
+            assert.are.equal(f:denominator(), 1)
         end)
 
     it("should throw on divide by zero", function()
-        assert.has_error(function ()
-            return Fraction:new(1,0)
+        assert.has_error(function()
+            return Fraction:new(1, 0)
         end)
 
     end)

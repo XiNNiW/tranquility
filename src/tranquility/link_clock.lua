@@ -20,7 +20,7 @@ local socket = require("socket")
 local abletonlink = require("abletonlink")
 
 function Sleep(sec)
-    socket.select(nil, nil, sec)
+    socket.sleep(sec)
 end
 
 LinkClock = {
@@ -108,6 +108,7 @@ function LinkClock:createNotifyCoroutine()
             local wait = (logicalNow - now) / mill
             if wait > 0 then
                 Sleep(wait)
+                -- coroutine.yield()
             end
 
             if not self._isRunning then break end

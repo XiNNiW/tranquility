@@ -35,7 +35,35 @@ require('math')
 -- round?
 
 local function gcd(a, b)
-    return b == 0 and a or gcd(b, a % b)
+    return (b == 0) and a or gcd(b, a % b)
+end
+
+local function decimalToFraction(x0, err)
+    err = err or 0.0000000001
+    local num, den
+    local g = math.abs(x0)
+    local sign = x0 / g
+    local a = 0
+    local b = 1
+    local c = 1
+    local d = 0
+    local s
+    local iter = 0;
+    while iter < 1000000 do
+
+        s = math.floor(g);
+        num = a + s * c;
+        den = b + s * d;
+        a = c;
+        b = d;
+        c = num;
+        d = den;
+        g = 1.0 / (g - s);
+        iter = iter + 1
+        if (err > math.abs(sign * num / den - x0)) then return sign * num, den end
+    end
+    error("failed to find a fraction for " .. x0)
+    return 0, 1;
 end
 
 Fraction = { _numerator = 0, _denominator = 1 }
@@ -58,12 +86,13 @@ function Fraction:new(
 )
     local n = numerator or 0
     local d = denominator or 1
-    if denominator == 0 then error("Fractional: divide by zero") end
+    if (n % 1) ~= 0 then n, d = decimalToFraction(n) end
+    if d == 0 then error("Fractional: divide by zero") end
     local normalize = shouldNormalize or true
-    n = math.floor(n)
-    d = math.floor(d)
-    if normalize then
-        local g = gcd(n, d)
+    -- n = math.floor(n)
+    -- d = math.floor(d)
+    if normalize and (n ~= 0) then
+        local g = math.floor(gcd(n, d))
         n = n // g
         d = d // g
     end

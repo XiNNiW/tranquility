@@ -65,7 +65,7 @@ function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
         Fraction:new(cycleFrom),
         Fraction:new(cycleTo)
     )
-    print(events)
+    print("cycle from: ", cycleFrom, " ", "cycle to: ", cycleTo)
 
     for _, ev in pairs(events) do
         local cycleOn = ev:whole():beginTime()

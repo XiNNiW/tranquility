@@ -34,7 +34,9 @@ describe("Event", function()
                 assert.are.Equals(event._context, expectedContext)
                 assert.is_false(event._stateful)
 
-                assert.has_error(function() return Event:new(expectedWhole, expectedPart, expectedValue, expectedContext, true) end)
+                assert.has_error(function() return Event:new(expectedWhole, expectedPart, expectedValue, expectedContext
+                        , true)
+                end)
             end)
 
     end)
@@ -69,6 +71,10 @@ describe("Event", function()
             local part = TimeSpan:new(Fraction:new(1, 2), Fraction:new(3, 4))
             local event = Event:new(whole, part, 5, {}, false)
             assert.is_true(event:hasOnset())
+
+            part = TimeSpan:new(Fraction:new(2, 3), Fraction:new(1, 1))
+            event = Event:new(whole, part, 5, {}, false)
+            assert.is_false(event:hasOnset())
 
             whole = TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1))
             part = TimeSpan:new(Fraction:new(2, 3), Fraction:new(3, 4))
@@ -236,7 +242,8 @@ describe("Event", function()
                     false
                 )
 
-                expectedContext = { thing1 = "something else", thing2 = 5, thing3 = "more cowbell", locations = { 1, 2, 3 } }
+                expectedContext = { thing1 = "something else", thing2 = 5, thing3 = "more cowbell",
+                    locations = { 1, 2, 3 } }
 
                 assert.are.same(event1:combineContext(event2), expectedContext)
             end)

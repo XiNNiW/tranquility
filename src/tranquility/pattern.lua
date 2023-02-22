@@ -76,7 +76,7 @@ function Pure(value)
         return Map(
             function(subspan)
                 local whole = TimeSpan:wholeCycle(subspan:beginTime())
-                return Event:new(whole, subspan, value)
+                return Event:new(whole, subspan, value, {}, false)
             end,
             state:span():spanCycles()
         )
