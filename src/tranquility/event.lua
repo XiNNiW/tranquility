@@ -96,9 +96,9 @@ function Event:combineContext(other)
     for key, value in pairs(other._context) do
         newContext[key] = value
     end
-    local locations1 = self._context.locations or {}
-    local locations2 = other._context.locations or {}
-    local newLocations = ListConcat(locations1, locations2)
+    local locations1 = self._context.locations or List:new({})
+    local locations2 = other._context.locations or List:new({})
+    local newLocations = locations1 .. locations2
     newContext.locations = newLocations
     return newContext
 end
@@ -135,15 +135,4 @@ function Event:__eq(other)
         (self._value == other._value) and
         CompareTables(self._context, other._context) and
         (self._stateful == other._stateful)
-end
-
-function ListConcat(rhs, lhs)
-    local newList = {}
-    for index, value in pairs(rhs) do
-        newList[index] = value
-    end
-    for index, value in pairs(lhs) do
-        newList[index + Length(rhs)] = value
-    end
-    return newList
 end

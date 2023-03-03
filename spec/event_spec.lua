@@ -1,7 +1,24 @@
+--[[
+Copyright (C) 2023 David Minnix
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+]] --
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
 require('tranquility/event')
+require("tranquility.list")
 
 describe("Event", function()
     describe("constructors", function()
@@ -209,7 +226,7 @@ describe("Event", function()
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     5,
-                    { thing1 = "something", thing2 = 5, locations = { 1, 2, 3 } },
+                    { thing1 = "something", thing2 = 5, locations = List:new({ 1, 2, 3 }) },
                     false
                 )
 
@@ -217,12 +234,12 @@ describe("Event", function()
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     6,
-                    { thing1 = "something else", thing3 = "more cowbell", locations = { 4, 5, 6 } },
+                    { thing1 = "something else", thing3 = "more cowbell", locations = List:new({ 4, 5, 6 }) },
                     false
                 )
 
                 local expectedContext = { thing1 = "something else", thing2 = 5, thing3 = "more cowbell",
-                    locations = { 1, 2, 3, 4, 5, 6 } }
+                    locations = List:new({ 1, 2, 3, 4, 5, 6 }) }
 
                 assert.are.same(event1:combineContext(event2), expectedContext)
 
@@ -230,7 +247,7 @@ describe("Event", function()
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)),
                     5,
-                    { thing1 = "something", thing2 = 5, locations = { 1, 2, 3 } },
+                    { thing1 = "something", thing2 = 5, locations = List:new({ 1, 2, 3 }) },
                     false
                 )
 
@@ -243,7 +260,7 @@ describe("Event", function()
                 )
 
                 expectedContext = { thing1 = "something else", thing2 = 5, thing3 = "more cowbell",
-                    locations = { 1, 2, 3 } }
+                    locations = List:new({ 1, 2, 3 }) }
 
                 assert.are.same(event1:combineContext(event2), expectedContext)
             end)

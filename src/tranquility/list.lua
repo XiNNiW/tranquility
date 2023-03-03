@@ -109,13 +109,25 @@ function List:__concat(l2)
     return self:concat(l2)
 end
 
-function List:__index(table, i)
+function List:__index(_, i)
     print("index")
     print(i)
     return self._list[i]
 end
 
-function List:__newindex(table, i, v)
+function List:__newindex(_, i, v)
     self._list[i] = v
     self._length = _length(self._list)
+end
+
+function List:__eq(l2)
+    if self:length() ~= l2:length() then
+        return false
+    end
+    self:foreach(function(i, e)
+        if l2:at(i) ~= e then
+            return false
+        end
+    end)
+    return true
 end
