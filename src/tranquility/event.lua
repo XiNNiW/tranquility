@@ -17,6 +17,7 @@ Copyright (C) 2023 David Minnix
 require("table")
 require("tranquility.compare_tables")
 require("tranquility.time_span")
+require("tranquility.length")
 
 Event = {
     _whole = nil,
@@ -50,6 +51,10 @@ end
 
 function Event:whole()
     return self._whole
+end
+
+function Event:part()
+    return self._part
 end
 
 function Event:duration()
@@ -138,7 +143,7 @@ function ListConcat(rhs, lhs)
         newList[index] = value
     end
     for index, value in pairs(lhs) do
-        newList[index + #(rhs)] = value
+        newList[index + Length(rhs)] = value
     end
     return newList
 end

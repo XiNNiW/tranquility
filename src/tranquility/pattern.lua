@@ -19,6 +19,7 @@ require('tranquility.time_span')
 require('tranquility.state')
 require('tranquility.map')
 require('tranquility.filter')
+require('tranquility.length')
 
 Pattern = { _query = function(_) return {} end }
 
@@ -51,18 +52,102 @@ end
 
 function Pattern:filterEvents(filterFunc)
     return Pattern:new(function(state)
-        return Filter(self:query(state), filterFunc)
+        return Filter(self._query(state), filterFunc)
     end)
+end
+
+function Pattern:splitQueries()
+    local function query(state)
+        return Concat(Map(self._query, state:withSpan(function(span) return span:spanCycles() end)))
+    end
+
+    return Pattern:new(query)
+end
+
+function Pattern:withQuerySpan(func)
+    return Pattern:new(function(state)
+        self._query(state:withSpan(func))
+    end)
+end
+
+function Pattern:withQueryTime(func)
+    return Pattern:new(function(state)
+        self._query(state:withSpan(function(span) return span:withTime(func) end))
+    end)
+end
+
+function Pattern:withEventTime(func)
+    local query = function(state)
+        return Map(function(event)
+            return event:withSpan(func)
+        end, self._query(state))
+    end
+    return Pattern:new(query)
+end
+
+function Pattern:_bindWhole(chooseWhole, func)
+    local patVal = self
+    local query = function(state)
+        local withWhole = function(a, b)
+            return Event:new(chooseWhole(a:whole(), b:part()), b:part(), b:value())
+        end
+
+        local match = function(a)
+            return Map(
+                function(b)
+                    withWhole(a, b)
+                end,
+                func(a:value()):query(state:setSpan(a:part()))
+            )
+        end
+
+        return Concat(Map(match, patVal:query(state)))
+    end
+    return Pattern:new(query)
+end
+
+function Pattern:outerBind(func)
+    local wholeFunc = function(_, b)
+        return b
+    end
+    return self:_bindWhole(wholeFunc, func)
+end
+
+function Pattern:outerJoin()
+    return self:outerBind(function(thing)
+        return thing
+    end)
+end
+
+function Pattern:_patternify(method)
+    local patterned = function(args)
+        local patArg = Sequence(args)
+        print("patternify1")
+        print(Dump(args))
+        print(Dump(patArg:queryArc(Fraction:new(0), Fraction:new(1))))
+        return patArg:fmap(function(arg)
+            print("_patternify")
+            print(Dump(arg))
+            return method(arg)
+        end):outerJoin()
+    end
+    return patterned
 end
 
 function Pattern:withValue(func)
     local query = function(state)
-        local mapped = {}
-        local events = self:query(state)
-        for _, e in pairs(events) do
-            table.insert(mapped, e:withValue(func))
-        end
-        return mapped
+        -- local mapped = {}
+        -- local events = self:query(state)
+        -- for _, e in pairs(events) do
+        --     table.insert(mapped, e:withValue(func))
+        -- end
+        -- return mapped
+
+        return Map(function(e)
+            print("withValue")
+            print(Dump(e))
+            return e:withValue(func)
+        end, self:query(state))
     end
     return Pattern:new(query)
 end
@@ -70,6 +155,24 @@ end
 function Pattern:fmap(func)
     return self:withValue(func)
 end
+
+function Pattern:_fast(value)
+    print("_fast")
+    print(Dump(value))
+    local fastQuery = self:withQueryTime(function(t)
+        return t * value
+    end)
+    local fastEvents = fastQuery:withEventTime(function(t)
+        return t / value
+    end)
+    return fastEvents
+end
+
+Pattern.fast = Pattern:_patternify(function(val)
+    print("patternified fast")
+    print(val)
+    return Pattern:_fast(val)
+end)
 
 function Pure(value)
     local query = function(state)
@@ -84,9 +187,48 @@ function Pure(value)
     return Pattern:new(query)
 end
 
-function _sequenceCount(x)
-    -- TODO: needs to handle lists!
-    if type(x) == "Pattern" then
+--def _sequence_count(x):
+--    if type(x) == list or type(x) == tuple:
+--        if len(x) == 1:
+--            return _sequence_count(x[0])
+--        else:
+--            return (fastcat(*[sequence(x) for x in x]), len(x))
+--    if isinstance(x, Pattern):
+--        return (x,1)
+--    else:
+--        return (pure(x), 1)
+function Reify(pat)
+    if type(pat) ~= "Pattern" then
+        return Pure(pat)
+    end
+    return pat
+end
+
+function Slowcat(pats)
+    pats = Map(Reify, pats)
+    local function query(state)
+        local numPats = Length(pats)
+        local pat = pats[math.floor(state:span():beginTime()) % numPats]
+        return pat:query(state)
+    end
+
+    return Pattern:new(query):splitQueries()
+end
+
+function Fastcat(pats)
+    return Slowcat(pats):_fast(Length(pats))
+end
+
+local function _sequenceCount(x)
+    if type(x) == "table" then
+        if Length(x) == 1 then
+            return _sequenceCount(x[1])
+        else
+            local pats = Map(Sequence, x)
+            return table.pack(Fastcat(pats), Length(x))
+        end
+
+    elseif type(x) == "Pattern" then
         return table.pack(x, 1)
     else
         return table.pack(Pure(x), 1)

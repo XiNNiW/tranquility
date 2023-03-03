@@ -15,6 +15,7 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
 require('math')
+require("tranquility.dump")
 -- this is a quick and dirty port of python's Fraction library pulling in only the things i need to get a first version working
 -- this should probably all be C calls instead
 --TODO
@@ -227,6 +228,10 @@ function Fraction:__mul(f2)
     --     nb //= g2
     --     da //= g2
     -- return Fraction(na * nb, db * da, _normalize=False)
+    print(Dump(f2))
+    if type(f2) == "number" then
+        f2 = Fraction:new(f2)
+    end
     local na = self:numerator()
     local nb = f2:numerator()
     local da = self:denominator()

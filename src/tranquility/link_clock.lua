@@ -82,7 +82,6 @@ function LinkClock:unsubscribe(subscriber)
 end
 
 function LinkClock:createNotifyCoroutine()
-    print("create")
     self._notifyCoroutine = coroutine.create(function()
         print("setup", self._isRunning)
 

@@ -107,6 +107,18 @@ describe("Pattern", function()
         end
         )
     end)
+    describe("fast", function()
+        local pat = Pure("bd")
+        local expectedEvents = {
+            Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(0.5)), TimeSpan:new(Fraction:new(0), Fraction:new(0.5))
+                , "bd"),
+            Event:new(TimeSpan:new(Fraction:new(0.5), Fraction:new(1)), TimeSpan:new(Fraction:new(0.5), Fraction:new(1))
+                , "bd")
+        }
+        local actualEvents = pat:fast(2):queryArc(Fraction:new(0), Fraction:new(1))
+        assert.are.same(expectedEvents, actualEvents)
+
+    end)
 
 end)
 --os.exit( lu.LuaUnit.run() )
