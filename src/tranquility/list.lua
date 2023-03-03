@@ -71,6 +71,10 @@ function List:new(l)
     }
 end
 
+function List:type()
+    return "List"
+end
+
 function List:length()
     return self._length
 end
@@ -99,6 +103,34 @@ end
 
 function List:assign(index, value)
     self._list[index] = value
+end
+
+function List:insert(e)
+    table.insert(self._list, e)
+    self._length = self._length + 1
+end
+
+function List:remove(position)
+    table.remove(self._list, position)
+    self._length = self._length - 1
+end
+
+function List:flatten()
+
+    local function _flatten(sublist, depth)
+        --local MAX_DEPTH = 8
+        local flattened = List:new()
+        sublist:foreach(function(_, item)
+            if (type(item) == "table") and (item:type() == "List") then
+                flattened = flattened:concat(_flatten(item, depth + 1))
+            else
+                flattened:insert(item)
+            end
+        end)
+        return flattened
+    end
+
+    return _flatten(self, 0)
 end
 
 function List:__pairs(_)

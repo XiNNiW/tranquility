@@ -20,6 +20,7 @@ local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
 require('tranquility.list')
+require('tranquility.dump')
 
 describe("List", function()
     it("should construct a list", function()
@@ -88,6 +89,38 @@ describe("List", function()
             return (element % 2) ~= 0
         end
         assert.are.same(list:filter(filterFunc), expectedFilteredList)
+    end)
+
+    it("should insert and remove", function()
+        local list = List:new({ 1, 2, 3 })
+        list:insert(4)
+        assert.are.equal(List:new({ 1, 2, 3, 4 }), list)
+        list:remove(3)
+        assert.are.equal(List:new({ 1, 2, 4 }), list)
+    end)
+
+    it("should flatten", function()
+        local list = List:new({ 1, 2, 3 })
+        local flattened = list:flatten()
+        assert.are.equal(list:length(), flattened:length())
+        assert.are.equal(list:at(1), flattened:at(1))
+        assert.are.equal(list:at(2), flattened:at(2))
+        assert.are.equal(list:at(3), flattened:at(3))
+        assert.are.same(list, flattened)
+
+        list = List:new({ 1, List:new({ 1, 2, 3 }), 3 })
+        flattened = list:flatten()
+        local expectedFlatList = List:new({ 1, 1, 2, 3, 3 })
+        print("FLATTEN")
+        print(type(list))
+        print(Dump(flattened))
+        assert.are.equal(expectedFlatList:length(), flattened:length())
+        assert.are.equal(expectedFlatList:at(1), flattened:at(1))
+        assert.are.equal(expectedFlatList:at(2), flattened:at(2))
+        assert.are.equal(expectedFlatList:at(3), flattened:at(3))
+        assert.are.equal(expectedFlatList:at(4), flattened:at(4))
+        assert.are.equal(expectedFlatList:at(5), flattened:at(5))
+        assert.are.same(expectedFlatList, flattened)
     end)
 
     --it("should iterate using pairs", function()

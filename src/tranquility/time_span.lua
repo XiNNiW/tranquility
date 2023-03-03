@@ -17,6 +17,7 @@ Copyright (C) 2023 David Minnix
 require("math")
 require("table")
 require('tranquility.fraction')
+require('tranquility.list')
 
 TimeSpan = { _begin = Fraction:new(1, 1), _end = Fraction:new(1, 1) }
 
@@ -56,7 +57,7 @@ function TimeSpan:endTime()
 end
 
 function TimeSpan:spanCycles()
-    local spans = {}
+    local spans = List:new({})
     local _begin = self._begin
     local _end = self._end
     local end_sam = TimeSpan:sam(_end)
@@ -67,12 +68,12 @@ function TimeSpan:spanCycles()
 
     while _end > _begin do
         if TimeSpan:sam(_begin) == end_sam then
-            table.insert(spans, TimeSpan:new(_begin, self._end))
+            spans:insert(TimeSpan:new(_begin, self._end))
             break
         end
 
         local next_begin = TimeSpan:nextSam(_begin)
-        table.insert(spans, TimeSpan:new(_begin, next_begin))
+        spans:insert(TimeSpan:new(_begin, next_begin))
 
         _begin = next_begin
     end

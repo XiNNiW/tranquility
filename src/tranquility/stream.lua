@@ -19,6 +19,7 @@ local losc = require('losc')
 local bundle = require('losc.bundle')
 local plugin = require('losc.plugins.udp-socket')
 require("tranquility.stream_target")
+require("tranquility.dump")
 
 
 
@@ -55,7 +56,7 @@ function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
     )
     print("cycle from: ", cycleFrom, " ", "cycle to: ", cycleTo)
 
-    for _, ev in pairs(events) do
+    events:foreach(function(_, ev)
         local cycleOn = ev:whole():beginTime()
         local cycleOff = ev:whole():endTime()
         local linkOn = s:time_at_beat(cycleOn:asFloat() * bpc, 0)
@@ -75,17 +76,17 @@ function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
             table.insert(msg, key)
             table.insert(msg, value)
         end
-        print("send", dump(v))
+        print("send", Dump(v))
         msg["types"] = GenerateTypesString(msg)
         msg["address"] = '/dirt/play'
         --local b = self._osc.new_bundle(ts, msg)
         --local b = self._osc.new_bundle(ts, self._osc.new_message(msg))
         local b = self._osc.new_message(msg)
         --bundle.validate(b)
-        print(dump(b))
+        print(Dump(b))
         self._osc:send(b)
 
-    end
+    end)
 
 end
 

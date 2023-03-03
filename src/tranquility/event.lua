@@ -17,7 +17,6 @@ Copyright (C) 2023 David Minnix
 require("table")
 require("tranquility.compare_tables")
 require("tranquility.time_span")
-require("tranquility.length")
 
 Event = {
     _whole = nil,

@@ -1,3 +1,19 @@
+--[[
+Copyright (C) 2023 David Minnix
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+]] --
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
@@ -17,10 +33,10 @@ describe("Pattern", function()
         it("should create with specified query",
             function()
                 local p = Pattern:new(function(_)
-                    return { Event:create() }
+                    return List:new({ Event:create() })
                 end)
                 local events = p:query(State:create())
-                assert.are.same(events, { Event:create() })
+                assert.are.same(events, List:new({ Event:create() }))
             end)
     end)
     describe("filterEvents", function()
@@ -31,7 +47,7 @@ describe("Pattern", function()
             local whole2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(3, 1))
             local part2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(1, 1))
             local event2 = Event:new(whole2, part2, 2, {}, false)
-            local events = { event1, event2 }
+            local events = List:new({ event1, event2 })
             local p = Pattern:new(function(_)
                 return events
             end)
@@ -40,7 +56,7 @@ describe("Pattern", function()
             end
             local filteredPattern = p:filterEvents(filterFunction)
             local filteredEvents = filteredPattern:query()
-            assert.are.same(filteredEvents, { event1 })
+            assert.are.equal(filteredEvents, List:new({ event1 }))
         end)
     end)
     describe("onsetsOnly", function()
@@ -52,7 +68,7 @@ describe("Pattern", function()
             local whole2 = TimeSpan:new(Fraction:new(2, 3), Fraction:new(3, 1))
             local part2 = TimeSpan:new(Fraction:new(5, 6), Fraction:new(1, 1))
             local event2 = Event:new(whole2, part2, 2, {}, false)
-            local events = { event1, event2 }
+            local events = List:new({ event1, event2 })
             local p = Pattern:new(function(_)
                 return events
             end)
@@ -60,7 +76,7 @@ describe("Pattern", function()
             local patternWithOnsetsOnly = p:onsetsOnly()
 
             assert.are.same(patternWithOnsetsOnly:query(State:new(TimeSpan:new(Fraction:new(0), Fraction:new(3)))),
-                { event1 })
+                List:new({ event1 }))
         end)
 
         it("pure patterns should not behave like continuous signals... they should have discrete onsets", function()
@@ -72,40 +88,37 @@ describe("Pattern", function()
             local expectedPart = TimeSpan:new(Fraction:new(0), Fraction:new(1))
             local expectedEvent = Event:new(expectedWhole, expectedPart, "bd")
             local actualEvents = patternWithOnsetsOnly:query(State:new(TimeSpan:new(Fraction:new(0), Fraction:new(1))))
-            assert.are.same(actualEvents,
-                { expectedEvent })
+            assert.are.equal(actualEvents,
+                List:new({ expectedEvent }))
             local querySpan = TimeSpan:new(Fraction:new(1, 16), Fraction:new(1))
             local state = State:new(querySpan)
             assert.are.equal(querySpan, state:span())
             actualEvents = patternWithOnsetsOnly:query(state)
-            assert.are.same(actualEvents,
-                {})
+            assert.are.equal(actualEvents,
+                List:new({}))
         end)
     end)
     describe("Pure", function()
         it("should create Pattern of a single value repeating once per cycle", function()
             local atom = Pure(5)
-            local expectedEvents = {
+            local expectedEvents = List:new({
                 Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
                     TimeSpan:new(Fraction:new(0), Fraction:new(1)), 5)
-            }
+            })
             local actualEvents = atom:queryArc(Fraction:new(0), Fraction:new(1))
-            assert.are.equal(#(actualEvents), #(expectedEvents))
-            assert.are.same(actualEvents[1], expectedEvents[1])
-            assert.are.same(actualEvents[1]._whole, expectedEvents[1]._whole)
-            assert.are.same(actualEvents[1]._part, expectedEvents[1]._part)
-            assert.are.same(actualEvents[1]._value, expectedEvents[1]._value)
+            assert.are.equal(actualEvents:length(), expectedEvents:length())
+            assert.are.same(actualEvents:at(1), expectedEvents:at(1))
+            assert.are.same(actualEvents:at(1)._whole, expectedEvents:at(1)._whole)
+            assert.are.same(actualEvents:at(1)._part, expectedEvents:at(1)._part)
+            assert.are.same(actualEvents:at(1)._value, expectedEvents:at(1)._value)
             local expectedEvent = Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
                 TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1)), 5, {}, false)
             actualEvents = atom:query(State:new(TimeSpan:new(Fraction:new(1, 2), Fraction:new(1, 1))))
-            assert.are.same(actualEvents, { expectedEvent })
-            assert.are.same(actualEvents[1]._part, expectedEvent._part)
-            assert.are.same(actualEvents[1]._whole, expectedEvent._whole)
-            assert.are.same(actualEvents[1]._value, expectedEvent._value)
-
-
-        end
-        )
+            assert.are.same(actualEvents, List:new({ expectedEvent }))
+            assert.are.same(actualEvents:at(1)._part, expectedEvent._part)
+            assert.are.same(actualEvents:at(1)._whole, expectedEvent._whole)
+            assert.are.same(actualEvents:at(1)._value, expectedEvent._value)
+        end)
     end)
     describe("fast", function()
         local pat = Pure("bd")

@@ -17,9 +17,6 @@ Copyright (C) 2023 David Minnix
 require("math")
 require('tranquility.time_span')
 require('tranquility.state')
-require('tranquility.map')
-require('tranquility.filter')
-require('tranquility.length')
 
 Pattern = { _query = function(_) return {} end }
 
@@ -52,13 +49,13 @@ end
 
 function Pattern:filterEvents(filterFunc)
     return Pattern:new(function(state)
-        return Filter(self._query(state), filterFunc)
+        return self._query(state):filter(filterFunc)
     end)
 end
 
 function Pattern:splitQueries()
     local function query(state)
-        return Concat(Map(self._query, state:withSpan(function(span) return span:spanCycles() end)))
+        return state:withSpan(function(span) return span:spanCycles() end):map(self._query):flatten()
     end
 
     return Pattern:new(query)
@@ -78,9 +75,9 @@ end
 
 function Pattern:withEventTime(func)
     local query = function(state)
-        return Map(function(event)
+        return self._query(state):map(function(event)
             return event:withSpan(func)
-        end, self._query(state))
+        end)
     end
     return Pattern:new(query)
 end
@@ -93,15 +90,14 @@ function Pattern:_bindWhole(chooseWhole, func)
         end
 
         local match = function(a)
-            return Map(
+            return func(a:value()):query(state:setSpan(a:part())):map(
                 function(b)
                     withWhole(a, b)
-                end,
-                func(a:value()):query(state:setSpan(a:part()))
+                end
             )
         end
 
-        return Concat(Map(match, patVal:query(state)))
+        return patVal:query(state):map(match):flatten()
     end
     return Pattern:new(query)
 end
@@ -143,11 +139,11 @@ function Pattern:withValue(func)
         -- end
         -- return mapped
 
-        return Map(function(e)
+        return self:query(state):map(function(e)
             print("withValue")
             print(Dump(e))
             return e:withValue(func)
-        end, self:query(state))
+        end)
     end
     return Pattern:new(query)
 end
@@ -176,12 +172,11 @@ end)
 
 function Pure(value)
     local query = function(state)
-        return Map(
+        return state:span():spanCycles():map(
             function(subspan)
                 local whole = TimeSpan:wholeCycle(subspan:beginTime())
                 return Event:new(whole, subspan, value, {}, false)
-            end,
-            state:span():spanCycles()
+            end
         )
     end
     return Pattern:new(query)
@@ -205,9 +200,9 @@ function Reify(pat)
 end
 
 function Slowcat(pats)
-    pats = Map(Reify, pats)
+    pats = pats:map(Reify)
     local function query(state)
-        local numPats = Length(pats)
+        local numPats = pats:length()
         local pat = pats[math.floor(state:span():beginTime()) % numPats]
         return pat:query(state)
     end
@@ -216,16 +211,16 @@ function Slowcat(pats)
 end
 
 function Fastcat(pats)
-    return Slowcat(pats):_fast(Length(pats))
+    return Slowcat(pats):_fast(pats:length())
 end
 
 local function _sequenceCount(x)
     if type(x) == "table" then
-        if Length(x) == 1 then
+        if x:length() == 1 then
             return _sequenceCount(x[1])
         else
-            local pats = Map(Sequence, x)
-            return table.pack(Fastcat(pats), Length(x))
+            local pats = x:map(Sequence)
+            return table.pack(Fastcat(pats), x:length())
         end
 
     elseif type(x) == "Pattern" then

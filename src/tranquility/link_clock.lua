@@ -16,6 +16,7 @@ Copyright (C) 2023 David Minnix
 ]] --
 require("table")
 require("coroutine")
+require("tranquility.list")
 local socket = require("socket")
 local abletonlink = require("abletonlink")
 
@@ -27,7 +28,7 @@ LinkClock = {
     bpm = 120,
     sampleRate = 1 / 20,
     beatsPerCycle = 4,
-    _subscribers = {},
+    _subscribers = List:new(),
     _isRunning = false,
     _link = nil,
     _linkSessionState = nil,
@@ -49,7 +50,7 @@ function LinkClock:new(bpm, sampleRate, beatsPerCycle)
     local session_state = abletonlink.create_session_state()
     return LinkClock:create {
         bpm = bpm, sampleRate = sampleRate, beatsPerCycle = beatsPerCycle,
-        _link = link, _linkSessionState = session_state, _subscribers = {}
+        _link = link, _linkSessionState = session_state, _subscribers = List:new({})
     }
 end
 
@@ -62,22 +63,23 @@ end
 
 function LinkClock:stop()
     self._isRunning = false
+    print("Stop was called")
     coroutine.close(self._notifyCoroutine)
 end
 
 function LinkClock:subscribe(subscriber)
-    table.insert(self._subscribers, subscriber)
+    self._subscribers:insert(subscriber)
 end
 
 function LinkClock:unsubscribe(subscriber)
     local positionOfSubscriber = false;
-    for i, sub in pairs(self._subscribers) do
+    self._subscribers:foreach(function(i, sub)
         if sub == subscriber then
             positionOfSubscriber = i;
         end
-    end
+    end)
     if positionOfSubscriber then
-        table.remove(self._subscribers, positionOfSubscriber)
+        self._subscribers:remove(positionOfSubscriber)
     end
 end
 
@@ -110,6 +112,8 @@ function LinkClock:createNotifyCoroutine()
                 -- coroutine.yield()
             end
 
+            print("running is set to... ", self._isRunning)
+
             if not self._isRunning then break end
 
             self._link:capture_audio_session_state(self._linkSessionState)
@@ -118,9 +122,10 @@ function LinkClock:createNotifyCoroutine()
             local cycleFrom = self._linkSessionState:beat_at_time(logicalNow, 0) / self.beatsPerCycle
             local cycleTo = self._linkSessionState:beat_at_time(logicalNext, 0) / self.beatsPerCycle
 
-            for _, sub in pairs(self._subscribers) do
+            self._subscribers:foreach(function(_, sub)
                 sub:notifyTick(cycleFrom, cycleTo, self._linkSessionState, cps, self.beatsPerCycle, mill, now)
-            end
+            end)
+            print("the coroutine is running? ... ", coroutine.running())
             coroutine.yield()
         end
 
