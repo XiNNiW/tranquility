@@ -66,6 +66,20 @@ describe("List", function()
         assert.are.equal(6, combined:at(6))
     end)
 
+    it("should __concat", function()
+
+        local list1 = List:new({ 1, 2, 3 })
+        local list2 = List:new({ 4, 5, 6 })
+        local combined = list1 .. list2
+        assert.are.equal(combined:length(), 6)
+
+        assert.are.equal(1, combined:at(1))
+        assert.are.equal(2, combined:at(2))
+        assert.are.equal(3, combined:at(3))
+        assert.are.equal(4, combined:at(4))
+        assert.are.equal(5, combined:at(5))
+        assert.are.equal(6, combined:at(6))
+    end)
 
     it("should return filter", function()
         local list = List:new({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 })
