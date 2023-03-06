@@ -19,7 +19,6 @@ local describe = busted.describe
 local it = busted.it
 require('tranquility/pattern')
 require('tranquility/event')
-require('tranquility/state')
 
 describe("Pattern", function()
     describe("Create", function()
@@ -38,6 +37,12 @@ describe("Pattern", function()
                 local events = p:query(State:create())
                 assert.are.same(events, List:new({ Event:create() }))
             end)
+
+
+        it("should have a function declaring its type", function()
+            local pattern = Pattern:new()
+            assert.are.equal("tranquility.Pattern", pattern:type())
+        end)
     end)
     describe("filterEvents", function()
         it("should return new pattern with events removed based on filter func", function()
@@ -57,6 +62,115 @@ describe("Pattern", function()
             local filteredPattern = p:filterEvents(filterFunction)
             local filteredEvents = filteredPattern:query()
             assert.are.equal(filteredEvents, List:new({ event1 }))
+        end)
+    end)
+    describe("withQueryTime", function()
+        it("should return new pattern whose query function will pass the query timespan through a function before mapping it to events"
+            , function()
+
+            local pat = Pure(5)
+            local add1 = function(other)
+                return other + Fraction:new(1)
+            end
+
+            local newPat = pat:withQueryTime(add1)
+            local expectedEvents = List:new({
+                Event:new(
+                    TimeSpan:new(1, 2),
+                    TimeSpan:new(2, 2),
+                    5
+                )
+            })
+            local actualEvents = newPat:queryArc(Fraction:new(0), Fraction:new(1))
+            print("actualEvents")
+            print(actualEvents)
+            assert.are.equal(expectedEvents, actualEvents)
+        end)
+    end)
+    describe("withQuerySpan", function()
+        it("should return new pattern with that modifies query span with function when queried", function()
+            local pat = Pure(5)
+            local newPat = pat:withQuerySpan(function(span)
+                return TimeSpan:new(span:endTime() + 0.5, span:endTime() + 0.5)
+            end)
+            local expectedEvents = List:new({
+                Event:new(
+                    TimeSpan:new(0.5, 1.5),
+                    TimeSpan:new(0.5, 1.5),
+                    5
+                )
+            })
+            assert.are.equal(expectedEvents, newPat:queryArc(Fraction:new(0), Fraction:new(1)))
+        end)
+    end)
+
+    describe("withEventTime", function()
+        it("should return new pattern with function mapped over event times", function()
+
+            local pat = Pure(5)
+            local newPat = pat:withEventTime(function(span)
+                return TimeSpan:new(span:endTime() + 0.5, span:endTime() + 0.5)
+            end)
+            local expectedEvents = List:new({
+                Event:new(
+                    TimeSpan:new(0.5, 1.5),
+                    TimeSpan:new(0.5, 1.5),
+                    10
+                )
+            })
+            assert.are.equal(expectedEvents, newPat:queryArc(0, 1))
+        end)
+    end)
+
+    describe("outerBind", function()
+        it("UNTESTED", function()
+            assert.are.equal(1, 3)
+        end)
+    end)
+    describe("splitQueries", function()
+        it("should break a query that spans multiple cycles into multiple queries each spanning one cycle", function()
+            local pat = Pattern:new(function(state)
+                return List:new({ Event:new(state.span, state.span, "a") })
+            end)
+            local splitPat = pat:splitQueries()
+            local expectedEventsPat = List:new({ Event:new(TimeSpan:new(0, 2), TimeSpan:new(0, 2), "a") })
+            local expectedEventsSplit = List:new({
+                Event:new(TimeSpan:new(0, 1), TimeSpan:new(0, 2), "a"),
+                Event:new(TimeSpan:new(1, 2), TimeSpan:new(0, 2), "a")
+            })
+            assert.are.equal(expectedEventsPat, pat:queryArc(0, 2))
+            assert.are.equal(expectedEventsSplit, splitPat:queryArc(0, 2))
+        end)
+    end)
+
+    describe("outerJoin", function()
+        it("it should convert a pattern of patterns into a single pattern with time structure coming from the outer pattern"
+            , function()
+            local patOfPats = Pure(Fastcat(List:new({ Pure("a"), Pure("b") })))
+            local expectedEvents = List:new({
+                Event:new(
+                    TimeSpan:new(0, 1),
+                    TimeSpan:new(0, 1),
+                    "a"
+                )
+            })
+            assert.are.equal(expectedEvents, patOfPats:outerJoin())
+        end)
+    end)
+    describe("withValue", function()
+        it("should return new pattern with function mapped over event values on query", function()
+            local pat = Pure(5)
+            local newPat = pat:withValue(function(v)
+                return v + 5
+            end)
+            local expectedEvents = List:new({
+                Event:new(
+                    TimeSpan:new(Fraction:new(0), Fraction:new(1)),
+                    TimeSpan:new(Fraction:new(0), Fraction:new(1)),
+                    10
+                )
+            })
+            assert.are.equal(expectedEvents, newPat:queryArc(Fraction:new(0), Fraction:new(1)))
         end)
     end)
     describe("onsetsOnly", function()
@@ -120,16 +234,52 @@ describe("Pattern", function()
             assert.are.same(actualEvents:at(1)._value, expectedEvent._value)
         end)
     end)
+    describe("Slowcat", function()
+        it("should alternate between the patterns in the list, one pattern per cycle", function()
+            local cattedPats = Slowcat({ Pure(1), Pure(2), 3 })
+            local expectedEventsCycle1 = List:new({
+                Event:new(
+                    TimeSpan:new(0, 1),
+                    TimeSpan:new(0, 1),
+                    1
+                )
+            })
+            assert.are.equal(expectedEventsCycle1, cattedPats:queryArc(0, 1))
+            local expectedEventsCycle2 = List:new({
+                Event:new(
+                    TimeSpan:new(1, 2),
+                    TimeSpan:new(1, 2),
+                    2
+                )
+            })
+            assert.are.equal(expectedEventsCycle2, cattedPats:queryArc(1, 2))
+
+            local expectedEventsCycle3 = List:new({
+                Event:new(
+                    TimeSpan:new(0, 1),
+                    TimeSpan:new(0, 1),
+                    3
+                )
+            })
+            assert.are.equal(expectedEventsCycle3, cattedPats:queryArc(2, 3))
+            assert.are.equal(expectedEventsCycle1, cattedPats:queryArc(3, 4))
+        end)
+    end)
     describe("fast", function()
-        local pat = Pure("bd")
-        local expectedEvents = {
-            Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(0.5)), TimeSpan:new(Fraction:new(0), Fraction:new(0.5))
-                , "bd"),
-            Event:new(TimeSpan:new(Fraction:new(0.5), Fraction:new(1)), TimeSpan:new(Fraction:new(0.5), Fraction:new(1))
-                , "bd")
-        }
-        local actualEvents = pat:fast(2):queryArc(Fraction:new(0), Fraction:new(1))
-        assert.are.same(expectedEvents, actualEvents)
+        it("should return a pattern whose events are closer together in time", function()
+            local pat = Pure("bd")
+            local expectedEvents = {
+                Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(0.5)),
+                    TimeSpan:new(Fraction:new(0), Fraction:new(0.5))
+                    , "bd"),
+                Event:new(TimeSpan:new(Fraction:new(0.5), Fraction:new(1)),
+                    TimeSpan:new(Fraction:new(0.5), Fraction:new(1))
+                    , "bd")
+            }
+            local actualEvents = pat:fast(2):queryArc(Fraction:new(0), Fraction:new(1))
+            assert.are.same(expectedEvents, actualEvents)
+
+        end)
 
     end)
 

@@ -35,6 +35,7 @@ build = {
         ["tranquility.list"] = "src/tranquility/list.lua",
         ["tranquility.stream_target"] = "src/tranquility/stream_target.lua",
         ["tranquility.stream"] = "src/tranquility/stream.lua",
+        ["tranquility.type"] = "src/tranquility/type.lua",
         ["tranquility.pattern_factory"] = "src/tranquility/pattern_factory.lua",
     },
     -- install = {

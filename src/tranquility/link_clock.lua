@@ -54,6 +54,10 @@ function LinkClock:new(bpm, sampleRate, beatsPerCycle)
     }
 end
 
+function LinkClock:type()
+    return "tranquility.LinkClock"
+end
+
 function LinkClock:start()
     if not self._isRunning then
         self._isRunning = true

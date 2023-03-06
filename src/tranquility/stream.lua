@@ -46,6 +46,10 @@ function Stream:new(target)
     }
 end
 
+function Stream:type()
+    return "tranquility.Stream"
+end
+
 function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
     if ((not self._pattern)) then
         return

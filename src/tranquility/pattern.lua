@@ -15,8 +15,8 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
 require("math")
-require('tranquility.time_span')
 require('tranquility.state')
+require('tranquility.type')
 
 Pattern = { _query = function(_) return {} end }
 
@@ -29,6 +29,10 @@ end
 
 function Pattern:new(query)
     return Pattern:create { _query = query }
+end
+
+function Pattern:type()
+    return "tranquility.Pattern"
 end
 
 function Pattern:query(state)
@@ -54,11 +58,13 @@ function Pattern:filterEvents(filterFunc)
 end
 
 function Pattern:splitQueries()
-    local function query(state)
-        return state:withSpan(function(span) return span:spanCycles() end):map(self._query):flatten()
+    local function splitQuery(state)
+        return state:span():spanCycles():map(function(subspan)
+            return self._query(state:setSpan(subspan))
+        end):flatten()
     end
 
-    return Pattern:new(query)
+    return Pattern:new(splitQuery)
 end
 
 function Pattern:withQuerySpan(func)
@@ -69,7 +75,7 @@ end
 
 function Pattern:withQueryTime(func)
     return Pattern:new(function(state)
-        self._query(state:withSpan(function(span) return span:withTime(func) end))
+        return self._query(state:withSpan(function(span) return span:withTime(func) end))
     end)
 end
 
@@ -86,7 +92,7 @@ function Pattern:_bindWhole(chooseWhole, func)
     local patVal = self
     local query = function(state)
         local withWhole = function(a, b)
-            return Event:new(chooseWhole(a:whole(), b:part()), b:part(), b:value())
+            return Event:new(chooseWhole(a:whole(), b:whole()), b:part(), b:value())
         end
 
         local match = function(a)
@@ -103,27 +109,29 @@ function Pattern:_bindWhole(chooseWhole, func)
 end
 
 function Pattern:outerBind(func)
-    local wholeFunc = function(_, b)
-        return b
+    local chooseOuterWhole = function(_, whole)
+        return whole
     end
-    return self:_bindWhole(wholeFunc, func)
+    return self:_bindWhole(chooseOuterWhole, func)
 end
 
 function Pattern:outerJoin()
-    return self:outerBind(function(thing)
-        return thing
-    end)
+    local function id(x)
+        return x
+    end
+
+    return self:outerBind(id)
 end
 
 function Pattern:_patternify(method)
     local patterned = function(args)
         local patArg = Sequence(args)
         print("patternify1")
-        print(Dump(args))
-        print(Dump(patArg:queryArc(Fraction:new(0), Fraction:new(1))))
+        print(args)
+        print(patArg)
         return patArg:fmap(function(arg)
             print("_patternify")
-            print(Dump(arg))
+            print(arg)
             return method(arg)
         end):outerJoin()
     end
@@ -132,16 +140,7 @@ end
 
 function Pattern:withValue(func)
     local query = function(state)
-        -- local mapped = {}
-        -- local events = self:query(state)
-        -- for _, e in pairs(events) do
-        --     table.insert(mapped, e:withValue(func))
-        -- end
-        -- return mapped
-
         return self:query(state):map(function(e)
-            print("withValue")
-            print(Dump(e))
             return e:withValue(func)
         end)
     end
@@ -193,18 +192,20 @@ end
 --    else:
 --        return (pure(x), 1)
 function Reify(pat)
-    if type(pat) ~= "Pattern" then
+    print("4")
+    if Type(pat) ~= "tranquility.Pattern" then
         return Pure(pat)
     end
     return pat
 end
 
 function Slowcat(pats)
+    pats = List:promote(pats)
     pats = pats:map(Reify)
     local function query(state)
         local numPats = pats:length()
-        local pat = pats[math.floor(state:span():beginTime()) % numPats]
-        return pat:query(state)
+        local pat = pats:at((state:span():beginTime():floor() % numPats) + 1)
+        return pat._query(state)
     end
 
     return Pattern:new(query):splitQueries()
@@ -215,18 +216,21 @@ function Fastcat(pats)
 end
 
 local function _sequenceCount(x)
-    if type(x) == "table" then
+    print("_sequenceCount")
+    print(Type(x))
+    print(Dump(x))
+    if Type(x) == "tranquility.List" then
         if x:length() == 1 then
             return _sequenceCount(x[1])
         else
             local pats = x:map(Sequence)
-            return table.pack(Fastcat(pats), x:length())
+            return Fastcat(pats), x:length()
         end
 
-    elseif type(x) == "Pattern" then
-        return table.pack(x, 1)
+    elseif Type(x) == "tranquility.Pattern" then
+        return x, 1
     else
-        return table.pack(Pure(x), 1)
+        return Pure(x), 1
     end
 end
 

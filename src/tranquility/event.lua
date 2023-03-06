@@ -44,6 +44,10 @@ function Event:new(whole, part, value, context, stateful)
     }
 end
 
+function Event:type()
+    return "tranquility.Event"
+end
+
 function Event:value()
     return self._value
 end
@@ -111,6 +115,11 @@ function Event:hasWhole()
 end
 
 function Event:show()
+    return self:__tostring()
+end
+
+function Event:__tostring()
+
     local partStartsWithWhole = self:hasWhole() and (self._whole:beginTime() == self._part:beginTime())
     local partEndsWithWhole   = self:hasWhole() and (self._whole:endTime() == self._part:endTime())
     local partFormat          = '(%s)'

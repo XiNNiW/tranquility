@@ -14,6 +14,7 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
+require("tranquility.type")
 local function _length(list)
     local len = 0;
     for _, _ in pairs(list) do
@@ -72,7 +73,18 @@ function List:new(l)
 end
 
 function List:type()
-    return "List"
+    return "tranquility.List"
+end
+
+function List:promote(tableList)
+    if (Type(tableList) ~= "tranquility.List") and (type(tableList) == "table") then
+        print("2")
+        return List:new(tableList)
+    elseif type(tableList) ~= "table" then
+        return List:new({ tableList })
+    end
+    return tableList
+
 end
 
 function List:length()
@@ -121,7 +133,7 @@ function List:flatten()
         --local MAX_DEPTH = 8
         local flattened = List:new()
         sublist:foreach(function(_, item)
-            if (type(item) == "table") and (item:type() == "List") then
+            if (type(item) == "table") and (Type(item) == "tranquility.List") then
                 flattened = flattened:concat(_flatten(item, depth + 1))
             else
                 flattened:insert(item)
@@ -162,4 +174,17 @@ function List:__eq(l2)
         end
     end)
     return true
+end
+
+function List:show()
+    local displayString = "{ "
+    self:foreach(function(_, element)
+        displayString = displayString .. tostring(element) .. ", "
+    end)
+    return displayString .. "}"
+
+end
+
+function List:__tostring()
+    return self:show()
 end

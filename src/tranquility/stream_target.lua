@@ -27,3 +27,7 @@ end
 function StreamTarget:new(target)
     return StreamTarget:create(target)
 end
+
+function StreamTarget:type()
+    return "tranquility.StreamTarget"
+end

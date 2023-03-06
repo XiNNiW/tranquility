@@ -55,7 +55,10 @@ describe("Event", function()
                         , true)
                 end)
             end)
-
+        it("should have a function declaring its type", function()
+            local event = Event:new()
+            assert.are.equal("tranquility.Event", event:type())
+        end)
     end)
 
     describe("duration", function()

@@ -94,12 +94,16 @@ function Fraction:new(
     -- d = math.floor(d)
     if normalize and (n ~= 0) then
         local g = math.floor(gcd(n, d))
-        n = n // g
-        d = d // g
+        n = math.floor(n / g)
+        d = math.floor(d / g)
     end
 
     local f = Fraction:create { _numerator = n, _denominator = d }
     return f
+end
+
+function Fraction:type()
+    return "tranquility.Fraction"
 end
 
 function Fraction:numerator()
@@ -125,6 +129,10 @@ function Fraction:__add(f2)
     --     return Fraction(t, s * db, _normalize=False)
     -- return Fraction(t // g2, s * (db // g2), _normalize=False)
 
+    if type(f2) == 'number' then
+        f2 = Fraction:new(f2)
+    end
+
     local na = self:numerator()
     local nb = f2:numerator()
     local da = self:denominator()
@@ -134,13 +142,13 @@ function Fraction:__add(f2)
     if g == 1 then
         return Fraction:new(na * db + da * nb, da * db, false)
     end
-    local s = da // g
-    local t = na * (db // g) + nb * s
+    local s = math.floor(da / g)
+    local t = na * math.floor(db / g) + nb * s
     local g2 = gcd(t, g)
     if g2 == 1 then
         return Fraction:new(t, s * db, false)
     end
-    return Fraction:new(t // g2, s * (db // g2), false)
+    return Fraction:new(math.floor(t / g2), s * math.floor(db / g2), false)
 end
 
 function Fraction:__sub(f2)
@@ -165,13 +173,13 @@ function Fraction:__sub(f2)
     if g == 1 then
         return Fraction:new(na * db - da * nb, da * db, false)
     end
-    local s = da // g
-    local t = na * (db // g) - nb * s
+    local s = math.floor(da / g)
+    local t = na * math.floor(db / g) - nb * s
     local g2 = gcd(t, g)
     if g2 == 1 then
         return Fraction:new(t, s * db, false)
     end
-    return Fraction:new(t // g2, s * (db // g2), false)
+    return Fraction:new(math.floor(t / g2), s * math.floor(db / g2), false)
 
 end
 
@@ -197,13 +205,13 @@ function Fraction:__div(f2)
     local db = f2:denominator()
     local g1 = gcd(na, nb)
     if g1 > 1 then
-        na = na // g1
-        nb = nb // g1
+        na = math.floor(na / g1)
+        nb = math.floor(nb / g1)
     end
     local g2 = gcd(db, da)
     if g2 > 1 then
-        da = da // g2
-        db = db // g2
+        da = math.floor(da / g2)
+        db = math.floor(db / g2)
     end
     local n = na * db
     local d = nb * da
@@ -238,13 +246,13 @@ function Fraction:__mul(f2)
     local db = f2:denominator()
     local g1 = gcd(na, db)
     if g1 > 1 then
-        na = na // g1
-        db = db // g1
+        na = math.floor(na / g1)
+        db = math.floor(db / g1)
     end
     local g2 = gcd(nb, da)
     if g2 > 1 then
-        nb = nb // g2
-        da = da // g2
+        nb = math.floor(nb // g2)
+        da = math.floor(da // g2)
     end
 
     return Fraction:new(na * nb, da * db, false)
@@ -318,7 +326,7 @@ function Fraction:__lte(rhs)
 end
 
 function Fraction:floor()
-    return self:numerator() // self:denominator()
+    return math.floor(self:numerator() / self:denominator())
 end
 
 function Fraction:min(other)
@@ -337,6 +345,10 @@ function Fraction:max(other)
     end
 end
 
-function Fraction:show()
+function Fraction:__tostring()
     return string.format('%d/%d', self:numerator(), self:denominator())
+end
+
+function Fraction:show()
+    return self:__tostring()
 end

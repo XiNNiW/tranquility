@@ -19,7 +19,7 @@ require("table")
 require('tranquility/time_span')
 require('tranquility/compare_tables')
 
-State = { _span = TimeSpan:create {}, _controls = {} }
+State = { _span = TimeSpan:new(), _controls = {} }
 
 function State:create(o)
     o = o or {}
@@ -34,6 +34,10 @@ end
 
 function State:new(span, controls)
     return State:create { _span = span, _controls = controls }
+end
+
+function State:type()
+    return "tranquility.State"
 end
 
 function State:setSpan(span)

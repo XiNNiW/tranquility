@@ -29,6 +29,11 @@ describe("Stream", function()
             assert.are.equal(stream._latency, 0.2)
             assert.is_nil(stream._pattern)
         end)
+
+        it("should have a function declaring its type", function()
+            local stream = Stream:new()
+            assert.are.equal("tranquility.Stream", stream:type())
+        end)
     end)
 
     describe("notifyTick", function()

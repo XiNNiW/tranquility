@@ -48,6 +48,11 @@ describe("State", function()
             assert.are.equal(state:span(), TimeSpan:new(Fraction:new(1, 16), Fraction:new(1, 1)))
             assert.are.equal(state:controls(), {})
         end
+
+        it("should have a function declaring its type", function()
+            local state = State:new()
+            assert.are.equal("tranquility.State", state:type())
+        end)
     end)
 
     describe("setSpan", function()

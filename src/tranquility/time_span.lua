@@ -45,7 +45,17 @@ function TimeSpan:create(o)
 end
 
 function TimeSpan:new(_begin, _end)
+    if type(_begin) == "number" then
+        _begin = Fraction:new(_begin)
+    end
+    if type(_end) == "number" then
+        _end = Fraction:new(_end)
+    end
     return TimeSpan:create { _begin = _begin, _end = _end }
+end
+
+function TimeSpan:type()
+    return "tranquility.TimeSpan"
 end
 
 function TimeSpan:beginTime()
@@ -63,7 +73,7 @@ function TimeSpan:spanCycles()
     local end_sam = TimeSpan:sam(_end)
 
     if _begin == _end then
-        return { TimeSpan:new(_begin, _end) }
+        return List:new({ TimeSpan:new(_begin, _end) })
     end
 
     while _end > _begin do
@@ -99,6 +109,10 @@ function TimeSpan:__eq(rhs)
 end
 
 function TimeSpan:show()
+    return self:__tostring()
+end
+
+function TimeSpan:__tostring()
     return string.format('%s → %s', self:beginTime():show(), self:endTime():show())
 end
 
