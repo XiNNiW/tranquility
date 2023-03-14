@@ -126,6 +126,13 @@ describe("List", function()
         assert.are.same(expectedFlatList, flattened)
     end)
 
+    it("should __eq", function()
+        local list1 = List:new({ 1, 2, 3 })
+        local list2 = List:new({ 1, 2, 3 })
+        assert.are.equal(list1, list2)
+        assert.is_true(list1 == list2)
+    end)
+
     --it("should iterate using pairs", function()
     --    local list = List:new({ 1, 2, 3 })
     --    local list2 = List:new()

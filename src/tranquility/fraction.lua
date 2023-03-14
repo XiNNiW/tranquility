@@ -199,6 +199,9 @@ function Fraction:__div(f2)
     -- if d < 0:
     --     n, d = -n, -d
     -- return Fraction(n, d, _normalize=False)
+    if (type(f2) == 'number') then
+        f2 = Fraction:new(f2)
+    end
     local na = self:numerator()
     local nb = f2:numerator()
     local da = self:denominator()
@@ -236,7 +239,6 @@ function Fraction:__mul(f2)
     --     nb //= g2
     --     da //= g2
     -- return Fraction(na * nb, db * da, _normalize=False)
-    print(Dump(f2))
     if type(f2) == "number" then
         f2 = Fraction:new(f2)
     end
@@ -251,8 +253,8 @@ function Fraction:__mul(f2)
     end
     local g2 = gcd(nb, da)
     if g2 > 1 then
-        nb = math.floor(nb // g2)
-        da = math.floor(da // g2)
+        nb = math.floor(nb / g2)
+        da = math.floor(da / g2)
     end
 
     return Fraction:new(na * nb, da * db, false)
@@ -285,6 +287,10 @@ function Fraction:__pow(f2)
     --         return float(a) ** float(b)
     -- else:
     --     return float(a) ** b
+
+    if (type(f2) == 'number') then
+        f2 = Fraction:new(f2)
+    end
     if f2:denominator() == 1 then
         local power = f2:numerator()
         if power >= 0 then
@@ -303,6 +309,10 @@ function Fraction:__mod(f2)
     -- """a % b"""
     -- da, db = a.denominator, b.denominator
     -- return Fraction((a.numerator * db) % (b.numerator * da), da * db)
+
+    if (type(f2) == 'number') then
+        f2 = Fraction:new(f2)
+    end
     local da = self:denominator()
     local db = f2:denominator()
 

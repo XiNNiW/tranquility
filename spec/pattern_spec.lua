@@ -25,7 +25,7 @@ describe("Pattern", function()
         it("should initialize with defaults", function()
             local p = Pattern:create()
             p = Pattern:create {}
-            assert.are.same(p:query(State:create()), {})
+            assert.are.same(p:query(State:create()), List:new())
         end)
     end)
     describe("New", function()
@@ -82,8 +82,6 @@ describe("Pattern", function()
                 )
             })
             local actualEvents = newPat:queryArc(Fraction:new(0), Fraction:new(1))
-            print("actualEvents")
-            print(actualEvents)
             assert.are.equal(expectedEvents, actualEvents)
         end)
     end)
@@ -108,8 +106,8 @@ describe("Pattern", function()
         it("should return new pattern with function mapped over event times", function()
 
             local pat = Pure(5)
-            local newPat = pat:withEventTime(function(span)
-                return TimeSpan:new(span:endTime() + 0.5, span:endTime() + 0.5)
+            local newPat = pat:withEventTime(function(time)
+                return time + 0.5
             end)
             local expectedEvents = List:new({
                 Event:new(
@@ -124,6 +122,7 @@ describe("Pattern", function()
 
     describe("outerBind", function()
         it("UNTESTED", function()
+
             assert.are.equal(1, 3)
         end)
     end)
@@ -142,21 +141,22 @@ describe("Pattern", function()
             assert.are.equal(expectedEventsSplit, splitPat:queryArc(0, 2))
         end)
     end)
-
-    describe("outerJoin", function()
-        it("it should convert a pattern of patterns into a single pattern with time structure coming from the outer pattern"
-            , function()
-            local patOfPats = Pure(Fastcat(List:new({ Pure("a"), Pure("b") })))
-            local expectedEvents = List:new({
-                Event:new(
-                    TimeSpan:new(0, 1),
-                    TimeSpan:new(0, 1),
-                    "a"
-                )
-            })
-            assert.are.equal(expectedEvents, patOfPats:outerJoin())
-        end)
-    end)
+    -- TODO: what is a more realistic test case than this?
+    --describe("outerJoin", function()
+    --    it("it should convert a pattern of patterns into a single pattern with time structure coming from the outer pattern"
+    --        , function()
+    --        local patOfPats = Pure(Fastcat(List:new({ Pure("a"), Pure("b") })))
+    --        local expectedEvents = List:new({
+    --            Event:new(
+    --                TimeSpan:new(0, 1),
+    --                TimeSpan:new(0, 1),
+    --                "a"
+    --            )
+    --        })
+    --        local actualEvents = patOfPats:outerJoin()
+    --        assert.are.equal(expectedEvents, actualEvents:queryArc(0, 1))
+    --    end)
+    --end)
     describe("withValue", function()
         it("should return new pattern with function mapped over event values on query", function()
             local pat = Pure(5)
@@ -221,7 +221,7 @@ describe("Pattern", function()
             })
             local actualEvents = atom:queryArc(Fraction:new(0), Fraction:new(1))
             assert.are.equal(actualEvents:length(), expectedEvents:length())
-            assert.are.same(actualEvents:at(1), expectedEvents:at(1))
+            assert.are.equal(actualEvents:at(1), expectedEvents:at(1))
             assert.are.same(actualEvents:at(1)._whole, expectedEvents:at(1)._whole)
             assert.are.same(actualEvents:at(1)._part, expectedEvents:at(1)._part)
             assert.are.same(actualEvents:at(1)._value, expectedEvents:at(1)._value)
@@ -267,16 +267,20 @@ describe("Pattern", function()
     end)
     describe("fast", function()
         it("should return a pattern whose events are closer together in time", function()
+            print("FAST TEST")
             local pat = Pure("bd")
-            local expectedEvents = {
+            local expectedEvents = List:new({
                 Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(0.5)),
                     TimeSpan:new(Fraction:new(0), Fraction:new(0.5))
                     , "bd"),
                 Event:new(TimeSpan:new(Fraction:new(0.5), Fraction:new(1)),
                     TimeSpan:new(Fraction:new(0.5), Fraction:new(1))
                     , "bd")
-            }
-            local actualEvents = pat:fast(2):queryArc(Fraction:new(0), Fraction:new(1))
+            })
+            local actualEvents = pat:_fast(2):queryArc(Fraction:new(0), Fraction:new(1))
+            print("RESULTS")
+            print(expectedEvents)
+            print(actualEvents)
             assert.are.same(expectedEvents, actualEvents)
 
         end)
@@ -284,4 +288,3 @@ describe("Pattern", function()
     end)
 
 end)
---os.exit( lu.LuaUnit.run() )

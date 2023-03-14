@@ -18,7 +18,7 @@ require("math")
 require('tranquility.state')
 require('tranquility.type')
 
-Pattern = { _query = function(_) return {} end }
+Pattern = { _query = function(_) return List:new() end }
 
 function Pattern:create(o)
     o = o or {}
@@ -69,7 +69,7 @@ end
 
 function Pattern:withQuerySpan(func)
     return Pattern:new(function(state)
-        self._query(state:withSpan(func))
+        return self._query(state:withSpan(func))
     end)
 end
 
@@ -82,7 +82,9 @@ end
 function Pattern:withEventTime(func)
     local query = function(state)
         return self._query(state):map(function(event)
-            return event:withSpan(func)
+            return event:withSpan(function(span)
+                return span:withTime(func)
+            end)
         end)
     end
     return Pattern:new(query)
@@ -98,7 +100,7 @@ function Pattern:_bindWhole(chooseWhole, func)
         local match = function(a)
             return func(a:value()):query(state:setSpan(a:part())):map(
                 function(b)
-                    withWhole(a, b)
+                    return withWhole(a, b)
                 end
             )
         end
@@ -153,17 +155,31 @@ end
 
 function Pattern:_fast(value)
     print("_fast")
+    print(self)
     print(Dump(value))
     local fastQuery = self:withQueryTime(function(t)
         return t * value
     end)
-    local fastEvents = fastQuery:withEventTime(function(t)
+    local fastPattern = fastQuery:withEventTime(function(t)
         return t / value
     end)
-    return fastEvents
+    return fastPattern
+end
+
+function Pattern:firstCycle()
+    return self:queryArc(0, 1)
+end
+
+function Pattern:__tostring()
+    return tostring(self:firstCycle())
+end
+
+function Pattern:show()
+    return self:__tostring()
 end
 
 Pattern.fast = Pattern:_patternify(function(val)
+
     print("patternified fast")
     print(val)
     return Pattern:_fast(val)
@@ -174,7 +190,7 @@ function Pure(value)
         return state:span():spanCycles():map(
             function(subspan)
                 local whole = TimeSpan:wholeCycle(subspan:beginTime())
-                return Event:new(whole, subspan, value, {}, false)
+                return Event:new(whole, subspan, value, List:new(), false)
             end
         )
     end
@@ -212,6 +228,7 @@ function Slowcat(pats)
 end
 
 function Fastcat(pats)
+    pats = List:promote(pats)
     return Slowcat(pats):_fast(pats:length())
 end
 
