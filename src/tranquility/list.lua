@@ -78,7 +78,6 @@ end
 
 function List:promote(tableList)
     if (Type(tableList) ~= "tranquility.List") and (type(tableList) == "table") then
-        print("2")
         return List:new(tableList)
     elseif type(tableList) ~= "table" then
         return List:new({ tableList })
@@ -154,8 +153,6 @@ function List:__concat(l2)
 end
 
 function List:__index(_, i)
-    print("index")
-    print(i)
     return self._list[i]
 end
 

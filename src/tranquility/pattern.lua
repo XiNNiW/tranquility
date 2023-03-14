@@ -154,9 +154,6 @@ function Pattern:fmap(func)
 end
 
 function Pattern:_fast(value)
-    print("_fast")
-    print(self)
-    print(Dump(value))
     local fastQuery = self:withQueryTime(function(t)
         return t * value
     end)
@@ -180,8 +177,6 @@ end
 
 Pattern.fast = Pattern:_patternify(function(val)
 
-    print("patternified fast")
-    print(val)
     return Pattern:_fast(val)
 end)
 
@@ -208,7 +203,6 @@ end
 --    else:
 --        return (pure(x), 1)
 function Reify(pat)
-    print("4")
     if Type(pat) ~= "tranquility.Pattern" then
         return Pure(pat)
     end
@@ -233,9 +227,6 @@ function Fastcat(pats)
 end
 
 local function _sequenceCount(x)
-    print("_sequenceCount")
-    print(Type(x))
-    print(Dump(x))
     if Type(x) == "tranquility.List" then
         if x:length() == 1 then
             return _sequenceCount(x[1])
