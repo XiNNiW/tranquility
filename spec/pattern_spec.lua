@@ -270,8 +270,31 @@ describe("Pattern", function()
                     TimeSpan:new(Fraction:new(0.5), Fraction:new(1))
                     , "bd")
             })
-            local actualEvents = pat:_fast(2):queryArc(Fraction:new(0), Fraction:new(1))
+            local actualEvents = pat:fast(2):queryArc(Fraction:new(0), Fraction:new(1))
             assert.are.same(expectedEvents, actualEvents)
+
+        end)
+
+    end)
+
+
+    describe("slow", function()
+        it("should return a pattern whose events are closer together in time", function()
+            local pat = Fastcat({ Pure("bd"), Pure("sd") })
+            local expectedEvents_0to1 = List:new({
+                Event:new(TimeSpan:new(Fraction:new(0), Fraction:new(1)),
+                    TimeSpan:new(Fraction:new(0), Fraction:new(1))
+                    , "bd"),
+            })
+            local expectedEvents_1to2 = List:new({
+                Event:new(TimeSpan:new(Fraction:new(1), Fraction:new(2)),
+                    TimeSpan:new(Fraction:new(1), Fraction:new(2))
+                    , "sd")
+            })
+            local actualEvents_0to1 = pat:slow(2):queryArc(Fraction:new(0), Fraction:new(1))
+            local actualEvents_1to2 = pat:slow(2):queryArc(Fraction:new(1), Fraction:new(2))
+            assert.are.same(expectedEvents_0to1, actualEvents_0to1)
+            assert.are.same(expectedEvents_1to2, actualEvents_1to2)
 
         end)
 

@@ -126,15 +126,15 @@ function Pattern:outerJoin()
 end
 
 function Pattern:_patternify(method)
-    local patterned = function(args)
-        local patArg = Sequence(args)
-        print("patternify1")
-        print(args)
+    local patterned = function(patSelf, ...)
+        local patArg = Sequence(List:promote(...))
+        print("PAT ARG")
         print(patArg)
+        print(patSelf)
+        print(List:promote(...))
+        print(method)
         return patArg:fmap(function(arg)
-            print("_patternify")
-            print(arg)
-            return method(arg)
+            return method(patSelf, arg)
         end):outerJoin()
     end
     return patterned
@@ -163,6 +163,10 @@ function Pattern:_fast(value)
     return fastPattern
 end
 
+function Pattern:_slow(value)
+    return self:_fast(1 / value)
+end
+
 function Pattern:firstCycle()
     return self:queryArc(0, 1)
 end
@@ -175,9 +179,12 @@ function Pattern:show()
     return self:__tostring()
 end
 
-Pattern.fast = Pattern:_patternify(function(val)
+Pattern.fast = Pattern:_patternify(function(patSelf, val)
+    return patSelf:_fast(val)
+end)
 
-    return Pattern:_fast(val)
+Pattern.slow = Pattern:_patternify(function(patSelf, val)
+    return patSelf:_slow(val)
 end)
 
 function Pure(value)
@@ -229,7 +236,7 @@ end
 local function _sequenceCount(x)
     if Type(x) == "tranquility.List" then
         if x:length() == 1 then
-            return _sequenceCount(x[1])
+            return _sequenceCount(x:at(1))
         else
             local pats = x:map(Sequence)
             return Fastcat(pats), x:length()
@@ -243,5 +250,6 @@ local function _sequenceCount(x)
 end
 
 function Sequence(x)
-    return _sequenceCount(x)[1]
+    local seq, _ = _sequenceCount(x)
+    return seq
 end
