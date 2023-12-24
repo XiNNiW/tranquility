@@ -4,3 +4,4 @@
 /lua_modules
 /.luarocks
 luarocks
+.luarc.json

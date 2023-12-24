@@ -21,6 +21,21 @@ You will need the following (they may have different names in your package manag
 5. start supercollider and (in supercollider) run `SuperDirt.start;`
 6. `./lua gabba_zero.lua`
 
+## Collaboration
+
+Collaboration is welcome! I would to work with other people in the community to help get this thing off the ground. I will be fairly busy until May 2024 and I might be a bit slow to review things until then.
+
+### Pull Requests
+
+For now I can review and merge pull requests. If I end up being a barrier I'm happy to hand things off.
+
+### Testing
+
+To help us keep things working as it grows I think we should write some kind of functional test for each piece of public facing functionality. If you want to write more tests to help you figure out whats going on with some piece of the internals that's OK. Please don't feel pressure to write the number of tests that I did for the core of tranquility. We can talk about how many of these tests we want to keep going forward. For now, please help me maintain them until we can write more comprehensive functional tests.
+Before opening a pull request please make sure that all tests pass appropriately.
+If a test is asserting something incorrectly please feel free to change the assertion. If a test is referencing functionality that is no longer a part of the production code, please replace it with one that does or, if needed, [delete](delete) it.
+
+
 
 
 

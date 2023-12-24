@@ -13,12 +13,17 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]] --
+]]
+--
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
+local mock = busted.mock
 require('tranquility/stream')
 require('tranquility/pattern')
+require('tranquility/control')
+local abletonlink = require("abletonlink")
+local losc = require('losc')
 
 describe("Stream", function()
     describe("new", function()
@@ -38,10 +43,16 @@ describe("Stream", function()
 
     describe("notifyTick", function()
         it("should send osc message when called", function()
-            --local stream = Stream:new()
-            --stream._pattern = Pure("bd")
-            --stream.notifyTick(0, 1, _, 0.5, 4, 10000, 333)
-            assert.are.equal(1, 3, "don't you... forget about me")
+            local stream = Stream:new()
+            stream._osc = mock(losc.new, true)
+            stream._osc.new_message = busted.spy()
+            stream._osc.send = busted.spy()
+            stream._pattern = S("bd")
+            local session_state = abletonlink.create_session_state()
+            stream:notifyTick(0, 1, session_state, 0.5, 4, 10000, 333)
+
+            assert.spy(stream._osc.new_message).was_called()
+            assert.spy(stream._osc.send).was_called()
         end)
     end)
 end)

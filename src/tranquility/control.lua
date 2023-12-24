@@ -15,7 +15,7 @@ Copyright (C) 2023 David Minnix
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]] --
 
-require("tranquility.pattern")
+require('tranquility/pattern')
 
 function S(args)
     return Sequence(args):fmap(function(v)
