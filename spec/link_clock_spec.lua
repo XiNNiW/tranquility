@@ -14,7 +14,7 @@ Copyright (C) 2023 David Minnix
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
-   --
+--
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
@@ -59,7 +59,6 @@ describe("LinkClock", function()
             clock:unsubscribe(mySub)
             assert.are.equal(clock._subscribers:length(), 1)
             assert.are.equal(clock._subscribers:at(1), mySub2)
-            stream._osc = mockOsc
         end)
     end)
     describe("notify", function()
