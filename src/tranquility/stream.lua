@@ -13,7 +13,8 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]] --
+]]
+--
 require("os")
 local losc = require('losc')
 local bundle = require('losc.bundle')
@@ -89,9 +90,7 @@ function Stream:notifyTick(cycleFrom, cycleTo, s, cps, bpc, mill, now)
         --bundle.validate(b)
         print(Dump(b))
         self._osc:send(b)
-
     end)
-
 end
 
 function GenerateTypesString(msg)

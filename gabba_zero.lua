@@ -16,11 +16,13 @@ Copyright (C) 2023 David Minnix
 ]]
 --
 require("coroutine")
-local t = require("tranquility")
+t = require("tranquility")
 
 print(t._VERSION)
 
-local pat = t.p(1, t.s("gabba"))
+
+local pat = t.p(1, t.s("gabba")):fast(t.cat({ 1, 2, 3, 4 }))
+
 t.Clock:start()
 
 print(coroutine.resume(t.Clock._notifyCoroutine))

@@ -13,7 +13,8 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]] --
+]]
+--
 local busted = require "busted"
 local describe = busted.describe
 local it = busted.it
@@ -68,7 +69,6 @@ describe("LinkClock", function()
             local stream = mock(Stream:new(), true)
             clock:subscribe(stream)
             clock:start()
-
         end)
     end)
 end)

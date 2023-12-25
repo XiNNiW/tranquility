@@ -13,10 +13,12 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]] --
+]]
+   --
 require("math")
 require('tranquility.state')
 require('tranquility.type')
+require('tranquility.event')
 
 Pattern = { _query = function(_) return List:new() end }
 
@@ -241,7 +243,6 @@ local function _sequenceCount(x)
             local pats = x:map(Sequence)
             return Fastcat(pats), x:length()
         end
-
     elseif Type(x) == "tranquility.Pattern" then
         return x, 1
     else
