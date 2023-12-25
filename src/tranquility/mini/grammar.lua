@@ -1,3 +1,5 @@
+--- defines the PEG grammar for parsing mini-notation
+-- @module mini.grammar
 local lpeg = require("lpeg")
 
 local P, S, V, R = lpeg.P, lpeg.S, lpeg.V, lpeg.R
@@ -49,8 +51,10 @@ local other_seqs = token("other", V("other_seqs"))
 local other_subseqs = token("other", V("other_subseqs"))
 local other_elements = token("other", V("other_elements"))
 
+--- table of PEG grammar rules
+-- @table grammar
 local grammar = lpeg.Ct(lpeg.C({
-	"root",
+	"root", -- initial rule, root
 	-- root
 	root = token("root", ws ^ -1 * sequence * ws ^ -1),
 
@@ -122,6 +126,9 @@ local grammar = lpeg.Ct(lpeg.C({
 	ws = S(" \t") ^ -1,
 }))
 
+--- Parse takes a string of mini code and returns an AST
+-- @tparam string string of mini-notation
+-- @treturn table table of AST nodes
 function Parse(string)
 	return grammar:match(string)[2]
 end

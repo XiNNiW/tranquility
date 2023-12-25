@@ -1,7 +1,18 @@
+--- returns the meaningful part in AST
+-- @module mini.visitor
+
 require("tranquility.mini.grammar")
 local unpack = table.unpack or _G.unpack
+
+--- turn parse trees into something useful
+-- performs a depth-first traversal of an AST
+-- simulates the NodeVisitor class from python module `parsimonious`
+-- @type Visitor
 Visitor = {}
 
+--- visit a node
+-- @tparam table node
+-- @treturn table
 function Visitor:visit(node)
 	local type = node[1]
 	local method = self[type]
@@ -123,7 +134,6 @@ function Visitor:element_value(_, children)
 	return children[1]
 end
 
--- terms
 function Visitor:term(_, children)
 	if type(children[1]) == "number" then
 		return { type = "number", value = children[1] }
@@ -144,7 +154,6 @@ function Visitor:index(_, children)
 	return children[1]
 end
 
--- modifiers
 function Visitor:euclid_modifier(_, children)
 	if children == "" then
 		return
@@ -245,7 +254,6 @@ function Visitor:weight(_, children)
 	return { type = "modifier", op = "weight", value = children[1] }
 end
 
--- primitives
 function Visitor:word(node, _)
 	return node[2]
 end

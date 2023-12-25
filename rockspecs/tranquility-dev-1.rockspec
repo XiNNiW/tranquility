@@ -18,7 +18,7 @@ dependencies = {
 	"losc >= 1.0.1-1",
 	"luasocket >= 3.1.0-1",
 	"abletonlink >= 1.0.0-1",
-	"lpeg" >= "1.1.0-1",
+	"lpeg >= 1.1.0-1",
 }
 build = {
 	type = "builtin",
@@ -41,7 +41,6 @@ build = {
 		["tranquility.mini"] = "src/tranquility/mini/init.lua",
 		["tranquility.mini.grammar"] = "src/tranquility/mini/grammar.lua",
 		["tranquility.mini.visitor"] = "src/tranquility/mini/visitor.lua",
-		["tranquility.mini.targets"] = "src/tranquility/mini/targets.lua",
 	},
 	-- install = {
 	--    bin = {"bin/tranquility"}
