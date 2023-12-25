@@ -48,7 +48,6 @@ tranquility._index = tranquility
 
 tranquility.p = P
 tranquility.s = S
-tranquility.n = Note
 tranquility.hush = Hush
 tranquility.Pure = Pure
 tranquility.Clock = DefaultClock
