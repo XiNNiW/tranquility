@@ -19,6 +19,7 @@ dependencies = {
 	"luasocket >= 3.1.0-1",
 	"abletonlink >= 1.0.0-1",
 	"lpeg >= 1.1.0-1",
+	"ldoc >= 1.0.1-1",
 }
 build = {
 	type = "builtin",
