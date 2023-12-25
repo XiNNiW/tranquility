@@ -13,7 +13,8 @@ Copyright (C) 2023 David Minnix
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]] --
+]]
+--
 require("tranquility.compare_tables")
 require("tranquility.event")
 require("tranquility.stream")
@@ -23,10 +24,10 @@ require("tranquility.control")
 require("tranquility.pattern_factory")
 
 local tranquility = {
-    _VERSION = 'tranquility dev-1',
-    _URL = 'https://github.com/xinniw/tranquility',
-    _DESCRIPTION = 'A language for algorithmic pattern. Tidalcycles for lua',
-    _LICENSE = [[
+	_VERSION = "tranquility dev-1",
+	_URL = "https://github.com/xinniw/tranquility",
+	_DESCRIPTION = "A language for algorithmic pattern. Tidalcycles for lua",
+	_LICENSE = [[
     Copyright (C) 2023 David Minnix
 
     This program is free software: you can redistribute it and/or modify
@@ -41,16 +42,16 @@ local tranquility = {
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    ]]
+    ]],
 }
 tranquility._index = tranquility
 
 tranquility.p = P
 tranquility.s = S
+tranquility.n = Note
 tranquility.hush = Hush
 tranquility.Pure = Pure
 tranquility.Clock = DefaultClock
-
 
 --function OscTest()
 --    local _ = p("bd")

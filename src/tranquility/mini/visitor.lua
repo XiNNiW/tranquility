@@ -1,4 +1,3 @@
--- TODO: checking for "" is still a bit ugly, but all is functional now
 require("tranquility.mini.grammar")
 local unpack = table.unpack or _G.unpack
 Visitor = {}
@@ -52,7 +51,6 @@ function Visitor:sequence(_, children)
 	return group
 end
 
--- need a test?
 function Visitor:group(_, children)
 	local element, other_elements = unpack(children)
 	local n_element = { element }
